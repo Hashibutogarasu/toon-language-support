@@ -1,0 +1,11 @@
+task: Our favorite hikes
+description: A collection of hiking trails
+
+friends[3]: ana,luis,sam
+
+hikes[2]{id,name,distance}:
+  1,Trail,7.5
+  2,Path,9.2
+
+valid_key: valid_value
+another_key: 42

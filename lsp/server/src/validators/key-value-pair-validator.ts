@@ -11,7 +11,9 @@ export class KeyValuePairValidator implements DiagnosticValidator {
   validate(document: ToonDocument, textDocument: TextDocument): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
 
-    for (const line of document.lines) {
+    for (let i = 0; i < document.lines.length; i++) {
+      const line = document.lines[i];
+
       try {
         // Skip truly empty lines (no content)
         if (line.content.trim().length === 0) {
@@ -63,16 +65,25 @@ export class KeyValuePairValidator implements DiagnosticValidator {
         }
 
         // Requirement 4.2: Empty value
+        // Check if the next line is indented - if so, this is a block structure
         if (valuePart.length === 0) {
-          diagnostics.push({
-            severity: DiagnosticSeverity.Error,
-            range: {
-              start: { line: line.lineNumber, character: colonIndex + 1 },
-              end: { line: line.lineNumber, character: line.content.length }
-            },
-            message: DiagnosticMessages.MISSING_VALUE,
-            source: 'toon'
-          });
+          const nextLine = i + 1 < document.lines.length ? document.lines[i + 1] : null;
+          const hasIndentedNextLine = nextLine &&
+            nextLine.content.trim().length > 0 &&
+            this.isIndented(nextLine.content, line.content);
+
+          // Only report error if there's no indented next line (not a block structure)
+          if (!hasIndentedNextLine) {
+            diagnostics.push({
+              severity: DiagnosticSeverity.Error,
+              range: {
+                start: { line: line.lineNumber, character: colonIndex + 1 },
+                end: { line: line.lineNumber, character: line.content.length }
+              },
+              message: DiagnosticMessages.MISSING_VALUE,
+              source: 'toon'
+            });
+          }
         }
 
         // Requirement 4.4: No error when syntax is correct (implicit - no diagnostic added)
@@ -82,5 +93,22 @@ export class KeyValuePairValidator implements DiagnosticValidator {
     }
 
     return diagnostics;
+  }
+
+  /**
+   * Check if a line is indented relative to another line
+   */
+  private isIndented(line: string, referenceLine: string): boolean {
+    const lineIndent = this.getIndentLevel(line);
+    const referenceIndent = this.getIndentLevel(referenceLine);
+    return lineIndent > referenceIndent;
+  }
+
+  /**
+   * Get the indentation level of a line (number of leading spaces)
+   */
+  private getIndentLevel(line: string): number {
+    const match = line.match(/^(\s*)/);
+    return match ? match[1].length : 0;
   }
 }

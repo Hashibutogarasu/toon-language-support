@@ -146,4 +146,81 @@ describe('KeyValuePairValidator', () => {
       expect(diagnostics.length).toBe(0);
     });
   });
+
+  describe('Block Structure (Empty Value with Indented Lines)', () => {
+    it('should not report error for empty value when next line is indented', () => {
+      const content = `context:
+  task: Our favorite hikes together`;
+      const doc = createDocument(content);
+      const parsed = parseToonDocument(doc);
+      const diagnostics = validator.validate(parsed, doc);
+
+      // Should not report error for 'context:' because next line is indented
+      expect(diagnostics.length).toBe(0);
+    });
+
+    it('should not report error for empty value with multiple indented lines', () => {
+      const content = `context:
+  task: Our favorite hikes together
+  location: Boulder
+  season: spring_2025`;
+      const doc = createDocument(content);
+      const parsed = parseToonDocument(doc);
+      const diagnostics = validator.validate(parsed, doc);
+
+      // Should not report error for 'context:' because next line is indented
+      expect(diagnostics.length).toBe(0);
+    });
+
+    it('should report error for empty value when next line is not indented', () => {
+      const content = `context:
+task: Our favorite hikes together`;
+      const doc = createDocument(content);
+      const parsed = parseToonDocument(doc);
+      const diagnostics = validator.validate(parsed, doc);
+
+      // Should report error for 'context:' because next line is not indented
+      expect(diagnostics.length).toBe(1);
+      expect(diagnostics[0].message).toContain('値が指定されていません');
+      expect(diagnostics[0].range.start.line).toBe(0);
+    });
+
+    it('should report error for empty value when it is the last line', () => {
+      const content = 'context:';
+      const doc = createDocument(content);
+      const parsed = parseToonDocument(doc);
+      const diagnostics = validator.validate(parsed, doc);
+
+      // Should report error for 'context:' because there's no next line
+      expect(diagnostics.length).toBe(1);
+      expect(diagnostics[0].message).toContain('値が指定されていません');
+    });
+
+    it('should report error for empty value when next line is empty', () => {
+      const content = `context:
+
+task: Our favorite hikes`;
+      const doc = createDocument(content);
+      const parsed = parseToonDocument(doc);
+      const diagnostics = validator.validate(parsed, doc);
+
+      // Should report error for 'context:' because next line is empty
+      expect(diagnostics.length).toBe(1);
+      expect(diagnostics[0].message).toContain('値が指定されていません');
+      expect(diagnostics[0].range.start.line).toBe(0);
+    });
+
+    it('should handle nested indentation correctly', () => {
+      const content = `metadata:
+  context:
+    task: Our favorite hikes together`;
+      const doc = createDocument(content);
+      const parsed = parseToonDocument(doc);
+      const diagnostics = validator.validate(parsed, doc);
+
+  // Should not report errors for either 'metadata:' or 'context:'
+  // because both have indented next lines
+      expect(diagnostics.length).toBe(0);
+    });
+  });
 });
