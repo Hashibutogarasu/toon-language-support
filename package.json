@@ -10,16 +10,31 @@
     "Programming Languages"
   ],
   "contributes": {
-    "languages": [{
-      "id": "toon",
-      "aliases": ["toon", "toon"],
-      "extensions": ["toon"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "toon",
-      "scopeName": "toon",
-      "path": "./syntaxes/toon.tmLanguage.json"
-    }]
+    "languages": [
+      {
+        "id": "toon",
+        "aliases": [
+          "toon",
+          "toon"
+        ],
+        "extensions": [
+          "toon"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "toon",
+        "scopeName": "toon",
+        "path": "./syntaxes/toon.tmLanguage.json"
+      }
+    ]
+  },
+  "devDependencies": {
+    "babel-jest": "^30.2.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5"
   }
 }
