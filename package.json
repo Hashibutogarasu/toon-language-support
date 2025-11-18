@@ -9,9 +9,6 @@
   "categories": [
     "Programming Languages"
   ],
-  "activationEvents": [
-    "onLanguage:toon"
-  ],
   "main": "./lsp/client/out/extension.js",
   "contributes": {
     "languages": [
