@@ -21,7 +21,8 @@ import { parseToonDocument, ToonDocument } from './parser';
 import {
   DiagnosticValidator,
   ArraySizeValidator,
-  StructuredArrayFieldValidator
+  StructuredArrayFieldValidator,
+  KeyValuePairValidator
 } from './validators';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -188,7 +189,8 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
 
   const validators: DiagnosticValidator[] = [
     new ArraySizeValidator(),
-    new StructuredArrayFieldValidator()
+    new StructuredArrayFieldValidator(),
+    new KeyValuePairValidator()
   ];
 
   for (const validator of validators) {
