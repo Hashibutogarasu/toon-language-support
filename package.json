@@ -9,6 +9,10 @@
   "categories": [
     "Programming Languages"
   ],
+  "activationEvents": [
+    "onLanguage:toon"
+  ],
+  "main": "./lsp/client/out/extension.js",
   "contributes": {
     "languages": [
       {
@@ -28,7 +32,9 @@
     ]
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "compile": "tsc -b",
+    "watch": "tsc -b -w"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
@@ -38,5 +44,10 @@
     "fast-check": "^4.3.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.39.1",
+    "@stylistic/eslint-plugin": "^5.6.0",
+    "typescript-eslint": "^8.47.0"
   }
 }

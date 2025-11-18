@@ -6,17 +6,9 @@
     "outDir": "out",
     "rootDir": "src",
     "sourceMap": true,
-    "esModuleInterop": true,
+    "strict": true,
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", ".vscode-test"],
-  "references": [
-    {
-      "path": "./lsp/client"
-    },
-    {
-      "path": "./lsp/server"
-    }
-  ]
+  "exclude": ["node_modules"]
 }
