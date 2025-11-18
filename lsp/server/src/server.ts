@@ -10,19 +10,32 @@ import {
   TextDocumentSyncKind,
   InitializeResult,
   DocumentDiagnosticReportKind,
-  type DocumentDiagnosticReport
+  type DocumentDiagnosticReport,
+  Hover,
+  MarkupKind,
+  Position
 } from 'vscode-languageserver/node';
 
 import {
   TextDocument
 } from 'vscode-languageserver-textdocument';
 
-import { parseToonDocument, ToonDocument } from './parser';
+import {
+  parseToonDocument,
+  ToonDocument,
+  Field,
+  StructuredArray,
+  SimpleArray,
+  KeyValuePair,
+  ArrayData,
+  ToonLine
+} from './parser';
 import {
   DiagnosticValidator,
   ArraySizeValidator,
   StructuredArrayFieldValidator,
-  KeyValuePairValidator
+  KeyValuePairValidator,
+  ArraySyntaxValidator
 } from './validators';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -190,7 +203,8 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
   const validators: DiagnosticValidator[] = [
     new ArraySizeValidator(),
     new StructuredArrayFieldValidator(),
-    new KeyValuePairValidator()
+    new KeyValuePairValidator(),
+    new ArraySyntaxValidator()
   ];
 
   for (const validator of validators) {
