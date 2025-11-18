@@ -4,6 +4,7 @@
   "description": "The language toon is likes optimized json.",
   "version": "0.0.1",
   "license": "MIT",
+  "publisher": "hashibutogarasu",
   "engines": {
     "vscode": "^1.106.1"
   },
@@ -16,7 +17,7 @@
   ],
   "icon": "images/icon.png",
   "author": {
-    "name": "Hashibutogarasu",
+    "name": "hashibutogarasu",
     "email": "karasu@karasu256.com"
   },
   "repository": {
