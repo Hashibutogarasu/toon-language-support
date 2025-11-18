@@ -1,65 +1,150 @@
-# toon-language-support README
+# Toon Language Support
 
-This is the README for your extension "toon-language-support". After writing up a brief description, we recommend including the following sections.
+[![Version](https://img.shields.io/badge/version-0.0.1-blue.png)](https://github.com/yourusername/toon-language-support)
+[![License](https://img.shields.io/badge/license-MIT-green.png)](LICENSE)
+
+A Visual Studio Code extension providing comprehensive language support for Toon files, including syntax highlighting, hover information, jump-to-definition, and real-time error detection.
+
+## Overview
+
+**Toon** stands for **Token-Oriented Object Notation** - a structured data format language optimized for AI systems. Toon provides a clean, readable syntax for representing configuration data, metadata, and structured information in a way that's both human-friendly and ideal for AI-driven workflows.
+
+Toon is designed to be simple yet powerful, supporting three main syntax patterns: key-value pairs for configuration, simple arrays with size validation, and structured arrays for tabular data with typed columns.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Language Syntax
 
-For example if there is an image subfolder under your extension project workspace:
+Toon supports three primary syntax patterns for organizing data:
 
-\!\[feature X\]\(images/feature-x.png\)
+#### Key-Value Pairs
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Simple key-value pairs for configuration and metadata. Perfect for storing context, settings, and properties.
 
-## Requirements
+```toon
+context:
+  task: Our favorite hikes together
+  location: Boulder
+  season: spring_2025
+```
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+**Use case**: Configuration files, metadata, simple data structures
 
-## Extension Settings
+#### Simple Arrays
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Arrays with explicit size declarations and comma-separated values. The extension validates that the number of values matches the declared size.
 
-For example:
+```toon
+friends[3]: ana,luis,sam
+```
 
-This extension contributes the following settings:
+**Use case**: Lists of items where size validation is important
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+#### Structured Arrays
 
-## Known Issues
+Tabular data with field definitions and multi-line data rows. Each row must have values matching the declared fields.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+```toon
+hikes[3]{id,name,distanceKm,elevationGain,companion,wasSunny}:
+  1,Blue Lake Trail,7.5,320,ana,true
+  2,Ridge Overlook,9.2,540,luis,false
+  3,Wildflower Loop,5.1,180,sam,true
+```
 
-## Release Notes
+**Use case**: Structured data, tables, records with multiple fields
 
-Users appreciate release notes as you update your extension.
+### Extension Capabilities
 
-### 1.0.0
+#### Syntax Highlighting
 
-Initial release of ...
+The extension automatically recognizes `.toon` files and provides color coding for:
+- Keys and field names
+- Values and data
+- Array declarations and sizes
+- Structural elements (brackets, braces, colons)
 
-### 1.0.1
+#### Hover Information
 
-Fixed issue #.
+Hover over elements in your Toon files to see contextual information:
+- **Structured array values**: Displays the field name for each value
+- **Array elements**: Shows index information
+- **Keys**: Displays key information for key-value pairs
 
-### 1.1.0
+Simply hover your mouse over any element to see its details.
 
-Added features X, Y, and Z.
+#### Jump to Definition
 
----
+Navigate quickly from structured array data values to their field definitions:
+- **F12**: Jump to definition
+- **Ctrl+Click** (Cmd+Click on macOS): Jump to definition
 
-## Working with Markdown
+This feature works with structured arrays, allowing you to jump from a data value back to the field declaration.
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+#### Error Detection
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+The extension provides real-time validation with four specialized validators:
 
-## For more information
+**ArraySizeValidator**
+- Detects when the number of array values doesn't match the declared size
+- Reports both insufficient and exceeded array sizes
+- Works for both simple arrays and structured array row counts
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+**StructuredArrayFieldValidator**
+- Validates that each data row has the correct number of fields
+- Detects missing fields (insufficient count)
+- Detects extra fields (exceeded count)
+- Each inconsistent row gets its own diagnostic
 
-**Enjoy!**
+**KeyValuePairValidator**
+- Ensures key-value pairs have proper syntax
+- Detects missing colons
+- Detects empty keys or values
+- Validates key-value pair structure
+
+**ArraySyntaxValidator**
+- Validates array declaration syntax
+- Checks for missing closing brackets
+- Ensures array size is specified
+- Validates that size is numeric
+- Checks structured array brace syntax
+
+All errors are displayed inline with red squiggly underlines and appear in the Problems panel.
+
+## Getting Started
+
+### Installation
+
+1. Open Visual Studio Code
+2. Go to the Extensions view (Ctrl+Shift+X or Cmd+Shift+X on macOS)
+3. Search for "Toon Language Support"
+4. Click Install
+
+### Usage
+
+1. Create a new file with the `.toon` extension
+2. Start writing Toon syntax - syntax highlighting will activate automatically
+3. Use hover, jump-to-definition, and error detection features as you work
+4. Check the Problems panel for any validation errors
+
+## Examples
+
+Here's a complete example demonstrating all Toon features:
+
+```toon
+context:
+  task: Our favorite hikes together
+  location: Boulder
+  season: spring_2025
+
+friends[3]: ana,luis,sam
+
+hikes[3]{id,name,distanceKm,elevationGain,companion,wasSunny}:
+  1,Blue Lake Trail,7.5,320,ana,true
+  2,Ridge Overlook,9.2,540,luis,false
+  3,Wildflower Loop,5.1,180,sam,true
+```
+
+More examples can be found in the `example/` directory of this repository:
+- `simple.toon` - Key-value pairs
+- `array.toon` - Simple arrays
+- `array_with_keys.toon` - Structured arrays
