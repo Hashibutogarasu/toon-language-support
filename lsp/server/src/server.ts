@@ -412,17 +412,11 @@ connection.onDefinition((params: TextDocumentPositionParams) => {
       return null;
     }
 
-    const location = findFieldDefinitionLocation(
+    return findFieldDefinitionLocation(
       params.position,
       parsedDocument,
       params.textDocument.uri
     );
-
-    if (location) {
-      connection.console.log(`Definition: Found definition at line ${location.range.start.line}, character ${location.range.start.character}`);
-    }
-
-    return location;
   } catch (error) {
     connection.console.error(`Definition handler failed: ${error instanceof Error ? error.message : String(error)}`);
     if (error instanceof Error && error.stack) {
