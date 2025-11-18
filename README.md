@@ -1,8 +1,5 @@
 # Toon Language Support
 
-[![Version](https://img.shields.io/badge/version-0.0.1-blue.png)](https://github.com/yourusername/toon-language-support)
-[![License](https://img.shields.io/badge/license-MIT-green.png)](LICENSE)
-
 A Visual Studio Code extension providing comprehensive language support for Toon files, including syntax highlighting, hover information, jump-to-definition, and real-time error detection.
 
 ## Overview
@@ -58,6 +55,7 @@ hikes[3]{id,name,distanceKm,elevationGain,companion,wasSunny}:
 #### Syntax Highlighting
 
 The extension automatically recognizes `.toon` files and provides color coding for:
+
 - Keys and field names
 - Values and data
 - Array declarations and sizes
@@ -66,6 +64,7 @@ The extension automatically recognizes `.toon` files and provides color coding f
 #### Hover Information
 
 Hover over elements in your Toon files to see contextual information:
+
 - **Structured array values**: Displays the field name for each value
 - **Array elements**: Shows index information
 - **Keys**: Displays key information for key-value pairs
@@ -75,6 +74,7 @@ Simply hover your mouse over any element to see its details.
 #### Jump to Definition
 
 Navigate quickly from structured array data values to their field definitions:
+
 - **F12**: Jump to definition
 - **Ctrl+Click** (Cmd+Click on macOS): Jump to definition
 
@@ -85,23 +85,27 @@ This feature works with structured arrays, allowing you to jump from a data valu
 The extension provides real-time validation with four specialized validators:
 
 **ArraySizeValidator**
+
 - Detects when the number of array values doesn't match the declared size
 - Reports both insufficient and exceeded array sizes
 - Works for both simple arrays and structured array row counts
 
 **StructuredArrayFieldValidator**
+
 - Validates that each data row has the correct number of fields
 - Detects missing fields (insufficient count)
 - Detects extra fields (exceeded count)
 - Each inconsistent row gets its own diagnostic
 
 **KeyValuePairValidator**
+
 - Ensures key-value pairs have proper syntax
 - Detects missing colons
 - Detects empty keys or values
 - Validates key-value pair structure
 
 **ArraySyntaxValidator**
+
 - Validates array declaration syntax
 - Checks for missing closing brackets
 - Ensures array size is specified
@@ -145,6 +149,7 @@ hikes[3]{id,name,distanceKm,elevationGain,companion,wasSunny}:
 ```
 
 More examples can be found in the `example/` directory of this repository:
+
 - `simple.toon` - Key-value pairs
 - `array.toon` - Simple arrays
 - `array_with_keys.toon` - Structured arrays

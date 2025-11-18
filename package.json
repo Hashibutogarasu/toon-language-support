@@ -14,6 +14,14 @@
   "activationEvents": [
     "onLanguage:toon"
   ],
+  "author": {
+    "name": "Hashibutogarasu",
+    "email": "karasu@karasu256.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hashibutogarasu/toon-language-support.git"
+  },
   "main": "./lsp/client/out/extension.js",
   "contributes": {
     "languages": [
