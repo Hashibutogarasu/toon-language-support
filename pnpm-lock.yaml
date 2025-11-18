@@ -8,12 +8,21 @@ importers:
 
   .:
     devDependencies:
+      '@types/jest':
+        specifier: ^30.0.0
+        version: 30.0.0
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.10.1
       babel-jest:
         specifier: ^30.2.0
         version: 30.2.0(@babel/core@7.28.5)
       babel-plugin-transform-es2015-modules-commonjs:
         specifier: ^6.26.2
         version: 6.26.2
+      fast-check:
+        specifier: ^4.3.0
+        version: 4.3.0
       jest:
         specifier: ^30.2.0
         version: 30.2.0(@types/node@24.10.1)
@@ -350,6 +359,9 @@ packages:
 
   '@types/istanbul-reports@3.0.4':
     resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
+
+  '@types/jest@30.0.0':
+    resolution: {integrity: sha512-XTYugzhuwqWjws0CVz8QpM36+T+Dz5mTEBKhNs/esGLnCIlGdRy+Dq78NRjd7ls7r8BC8ZRMOrKlkO1hU0JOwA==}
 
   '@types/node@24.10.1':
     resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
@@ -735,6 +747,10 @@ packages:
   expect@30.2.0:
     resolution: {integrity: sha512-u/feCi0GPsI+988gU2FLcsHyAHTU0MX1Wg68NhAnN7z/+C5wqG+CY8J53N9ioe8RXgaoz0nBR/TYMf3AycUuPw==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
+
+  fast-check@4.3.0:
+    resolution: {integrity: sha512-JVw/DJSxVKl8uhCb7GrwanT9VWsCIdBkK3WpP37B/Au4pyaspriSjtrY2ApbSFwTg3ViPfniT13n75PhzE7VEQ==}
+    engines: {node: '>=12.17.0'}
 
   fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
@@ -1915,6 +1931,11 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
 
+  '@types/jest@30.0.0':
+    dependencies:
+      expect: 30.2.0
+      pretty-format: 30.2.0
+
   '@types/node@24.10.1':
     dependencies:
       undici-types: 7.16.0
@@ -2281,6 +2302,10 @@ snapshots:
       jest-message-util: 30.2.0
       jest-mock: 30.2.0
       jest-util: 30.2.0
+
+  fast-check@4.3.0:
+    dependencies:
+      pure-rand: 7.0.1
 
   fast-json-stable-stringify@2.1.0: {}
 

@@ -1,14 +1,168 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "toon",
+  "scopeName": "source.toon",
   "patterns": [
     {
-      "include": "#keywords"
+      "include": "#structured-array"
     },
     {
-      "include": "#strings"
+      "include": "#simple-array"
+    },
+    {
+      "include": "#key-value-pair"
     }
   ],
-  "repository": {},
-  "scopeName": "text.toon"
+  "repository": {
+    "structured-array": {
+      "begin": "^\\s*(\\w+)(\\[)(\\d+)(\\])(\\{)([^}]+)(\\})(:)",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.type.toon"
+        },
+        "2": {
+          "name": "punctuation.definition.array.toon"
+        },
+        "3": {
+          "name": "constant.numeric.toon"
+        },
+        "4": {
+          "name": "punctuation.definition.array.toon"
+        },
+        "5": {
+          "name": "punctuation.definition.fields.toon"
+        },
+        "6": {
+          "patterns": [
+            {
+              "match": "\\w+",
+              "name": "variable.parameter.toon"
+            },
+            {
+              "match": ",",
+              "name": "punctuation.separator.comma.toon"
+            }
+          ]
+        },
+        "7": {
+          "name": "punctuation.definition.fields.toon"
+        },
+        "8": {
+          "name": "punctuation.separator.toon"
+        }
+      },
+      "end": "^(?!\\s+)",
+      "patterns": [
+        {
+          "match": "^\\s+.*$",
+          "captures": {
+            "0": {
+              "patterns": [
+                {
+                  "include": "#value-list"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "simple-array": {
+      "match": "^\\s*(\\w+)(\\[)(\\d+)(\\])(:)\\s*(.*)$",
+      "captures": {
+        "1": {
+          "name": "entity.name.type.toon"
+        },
+        "2": {
+          "name": "punctuation.definition.array.toon"
+        },
+        "3": {
+          "name": "constant.numeric.toon"
+        },
+        "4": {
+          "name": "punctuation.definition.array.toon"
+        },
+        "5": {
+          "name": "punctuation.separator.toon"
+        },
+        "6": {
+          "patterns": [
+            {
+              "include": "#value-list"
+            }
+          ]
+        }
+      }
+    },
+    "value-list": {
+      "patterns": [
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.toon"
+        },
+        {
+          "include": "#values"
+        }
+      ]
+    },
+    "key-value-pair": {
+      "match": "^\\s*(\\w+)(:)\\s*(.*)$",
+      "captures": {
+        "1": {
+          "name": "variable.other.property.toon"
+        },
+        "2": {
+          "name": "punctuation.separator.toon"
+        },
+        "3": {
+          "patterns": [
+            {
+              "include": "#values"
+            }
+          ]
+        }
+      }
+    },
+    "values": {
+      "patterns": [
+        {
+          "include": "#number"
+        },
+        {
+          "include": "#boolean"
+        },
+        {
+          "include": "#string"
+        }
+      ]
+    },
+    "number": {
+      "name": "constant.numeric.toon",
+      "match": "-?\\d+\\.?\\d*"
+    },
+    "boolean": {
+      "name": "constant.language.boolean.toon",
+      "match": "\\b(true|false)\\b"
+    },
+    "string": {
+      "name": "string.unquoted.toon",
+      "match": "[a-zA-Z_][a-zA-Z0-9_]*"
+    },
+    "escape-sequence": {
+      "name": "constant.character.escape.toon",
+      "match": "\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4})"
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.separator.toon",
+          "match": ":"
+        },
+        {
+          "name": "punctuation.separator.comma.toon",
+          "match": ","
+        }
+      ]
+    }
+  }
 }

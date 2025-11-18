@@ -13,12 +13,8 @@
     "languages": [
       {
         "id": "toon",
-        "aliases": [
-          "toon",
-          "toon"
-        ],
         "extensions": [
-          "toon"
+          ".toon"
         ],
         "configuration": "./language-configuration.json"
       }
@@ -26,14 +22,20 @@
     "grammars": [
       {
         "language": "toon",
-        "scopeName": "toon",
+        "scopeName": "source.toon",
         "path": "./syntaxes/toon.tmLanguage.json"
       }
     ]
   },
+  "scripts": {
+    "test": "jest"
+  },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
     "babel-jest": "^30.2.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "fast-check": "^4.3.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5"
   }
