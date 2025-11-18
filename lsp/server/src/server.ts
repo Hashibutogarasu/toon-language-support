@@ -1,7 +1,3 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
 import {
   createConnection,
   TextDocuments,
@@ -22,6 +18,8 @@ import {
 import {
   TextDocument
 } from 'vscode-languageserver-textdocument';
+
+import { parseToonDocument, ToonDocument } from './parser';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -130,11 +128,26 @@ function getDocumentSettings(resource: string): Thenable<ToonSettings> {
   return result;
 }
 
+// Cache for parsed documents
+const documentCache = new Map<string, ToonDocument>();
+
+function getCachedDocument(uri: string): ToonDocument | undefined {
+  return documentCache.get(uri);
+}
+
+function setCachedDocument(uri: string, document: ToonDocument): void {
+  documentCache.set(uri, document);
+}
+
+function invalidateCache(uri: string): void {
+  documentCache.delete(uri);
+}
+
 // Only keep settings for open documents
 documents.onDidClose(e => {
   documentSettings.delete(e.document.uri);
+  documentCache.delete(e.document.uri);
 });
-
 
 connection.languages.diagnostics.on(async (params) => {
   const document = documents.get(params.textDocument.uri);
@@ -162,6 +175,10 @@ documents.onDidChangeContent(change => {
 async function validateTextDocument(textDocument: TextDocument): Promise<Diagnostic[]> {
   // In this simple example we get the settings for every validate run.
   const settings = await getDocumentSettings(textDocument.uri);
+
+  // Parse the document and cache it
+  const parsedDocument = parseToonDocument(textDocument);
+  setCachedDocument(textDocument.uri, parsedDocument);
 
   // TODO: Implement Toon language-specific validation
   const diagnostics: Diagnostic[] = [];
