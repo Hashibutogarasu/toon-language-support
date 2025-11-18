@@ -19,7 +19,92 @@ import {
   TextDocument
 } from 'vscode-languageserver-textdocument';
 
-import { parseToonDocument, ToonDocument } from './parser';
+import { parseToonDocument, ToonDocument, ToonLine, SimpleArray, StructuredArray } from './parser';
+
+// Diagnostic messages
+const DiagnosticMessages = {
+  ARRAY_SIZE_INSUFFICIENT: '配列の要素数が不足しています（宣言: {declared}, 実際: {actual}）',
+  ARRAY_SIZE_EXCEEDED: '配列の要素数が超過しています（宣言: {declared}, 実際: {actual}）',
+  ARRAY_ROWS_MISMATCH: '配列の行数が宣言と一致しません（宣言: {declared}, 実際: {actual}）',
+  FIELD_COUNT_INSUFFICIENT: 'フィールド数が不足しています（期待: {expected}, 実際: {actual}）',
+  FIELD_COUNT_EXCEEDED: 'フィールド数が超過しています（期待: {expected}, 実際: {actual}）',
+  MISSING_COLON: 'コロンが見つかりません',
+  MISSING_VALUE: '値が指定されていません',
+  MISSING_KEY: 'キーが指定されていません',
+  MISSING_CLOSING_BRACKET: '閉じ角括弧が見つかりません',
+  MISSING_ARRAY_SIZE: '配列サイズが指定されていません',
+  INVALID_ARRAY_SIZE: '配列サイズは数値である必要があります',
+  MISSING_CLOSING_BRACE: '閉じ波括弧が見つかりません'
+};
+
+// Validator interface
+interface DiagnosticValidator {
+  validate(document: ToonDocument, textDocument: TextDocument): Diagnostic[];
+}
+
+// Array Size Validator
+class ArraySizeValidator implements DiagnosticValidator {
+  validate(document: ToonDocument, textDocument: TextDocument): Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+
+    for (const line of document.lines) {
+      try {
+        if (line.type === 'simple-array' && line.parsed) {
+          const simpleArray = line.parsed as SimpleArray;
+          const actualCount = simpleArray.values.length;
+          const declaredSize = simpleArray.declaredSize;
+
+          if (actualCount !== declaredSize) {
+            let message: string;
+            if (actualCount < declaredSize) {
+              message = DiagnosticMessages.ARRAY_SIZE_INSUFFICIENT
+                .replace('{declared}', declaredSize.toString())
+                .replace('{actual}', actualCount.toString());
+            } else {
+              message = DiagnosticMessages.ARRAY_SIZE_EXCEEDED
+                .replace('{declared}', declaredSize.toString())
+                .replace('{actual}', actualCount.toString());
+            }
+
+            diagnostics.push({
+              severity: DiagnosticSeverity.Error,
+              range: {
+                start: { line: line.lineNumber, character: 0 },
+                end: { line: line.lineNumber, character: line.content.length }
+              },
+              message,
+              source: 'toon'
+            });
+          }
+        } else if (line.type === 'structured-array' && line.parsed) {
+          const structuredArray = line.parsed as StructuredArray;
+          const actualRows = structuredArray.dataLines.length;
+          const declaredSize = structuredArray.declaredSize;
+
+          if (actualRows !== declaredSize) {
+            const message = DiagnosticMessages.ARRAY_ROWS_MISMATCH
+              .replace('{declared}', declaredSize.toString())
+              .replace('{actual}', actualRows.toString());
+
+            diagnostics.push({
+              severity: DiagnosticSeverity.Error,
+              range: {
+                start: { line: line.lineNumber, character: 0 },
+                end: { line: line.lineNumber, character: line.content.length }
+              },
+              message,
+              source: 'toon'
+            });
+          }
+        }
+      } catch (error) {
+        console.error(`ArraySizeValidator error at line ${line.lineNumber}:`, error);
+      }
+    }
+
+    return diagnostics;
+  }
+}
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -180,9 +265,22 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
   const parsedDocument = parseToonDocument(textDocument);
   setCachedDocument(textDocument.uri, parsedDocument);
 
-  // TODO: Implement Toon language-specific validation
+  // Run validators
   const diagnostics: Diagnostic[] = [];
-  
+
+  const validators: DiagnosticValidator[] = [
+    new ArraySizeValidator()
+  ];
+
+  for (const validator of validators) {
+    try {
+      const results = validator.validate(parsedDocument, textDocument);
+      diagnostics.push(...results);
+    } catch (error) {
+      console.error(`Validator ${validator.constructor.name} failed:`, error);
+    }
+  }
+
   return diagnostics;
 }
 
