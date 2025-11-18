@@ -1,0 +1,25 @@
+{
+  "name": "toon-language-support",
+  "displayName": "Toon Language Support",
+  "description": "The language toon is likes optimized json.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.106.1"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "toon",
+      "aliases": ["toon", "toon"],
+      "extensions": ["toon"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "toon",
+      "scopeName": "toon",
+      "path": "./syntaxes/toon.tmLanguage.json"
+    }]
+  }
+}
