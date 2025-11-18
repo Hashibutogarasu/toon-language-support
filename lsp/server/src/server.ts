@@ -70,6 +70,10 @@ connection.onInitialize((params: InitializeParams) => {
     capabilities.textDocument.publishDiagnostics.relatedInformation
   );
 
+  // Log initialization
+  connection.console.log('Toon Language Server initializing...');
+  connection.console.log(`Client capabilities: configuration=${hasConfigurationCapability}, workspaceFolders=${hasWorkspaceFolderCapability}`);
+
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
@@ -94,6 +98,10 @@ connection.onInitialize((params: InitializeParams) => {
       }
     };
   }
+
+  connection.console.log('Toon Language Server initialized successfully');
+  connection.console.log('Registered capabilities: hover, definition, diagnostics, completion');
+
   return result;
 });
 
@@ -220,7 +228,10 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
       const results = validator.validate(parsedDocument, textDocument);
       diagnostics.push(...results);
     } catch (error) {
-      console.error(`Validator ${validator.constructor.name} failed:`, error);
+      connection.console.error(`Validator ${validator.constructor.name} failed: ${error instanceof Error ? error.message : String(error)}`);
+      if (error instanceof Error && error.stack) {
+        connection.console.error(`Stack trace: ${error.stack}`);
+      }
     }
   }
 
@@ -256,11 +267,13 @@ connection.onHover((params: TextDocumentPositionParams): Hover | null => {
   try {
     const document = documents.get(params.textDocument.uri);
     if (!document) {
+      connection.console.log(`Hover: Document not found for URI ${params.textDocument.uri}`);
       return null;
     }
 
     const parsedDocument = getCachedDocument(params.textDocument.uri);
     if (!parsedDocument) {
+      connection.console.log(`Hover: Parsed document not in cache for URI ${params.textDocument.uri}`);
       return null;
     }
 
@@ -375,7 +388,10 @@ connection.onHover((params: TextDocumentPositionParams): Hover | null => {
 
     return null;
   } catch (error) {
-    console.error('Hover handler failed:', error);
+    connection.console.error(`Hover handler failed: ${error instanceof Error ? error.message : String(error)}`);
+    if (error instanceof Error && error.stack) {
+      connection.console.error(`Stack trace: ${error.stack}`);
+    }
     return null;
   }
 });
@@ -387,11 +403,13 @@ connection.onDefinition((params: TextDocumentPositionParams) => {
   try {
     const document = documents.get(params.textDocument.uri);
     if (!document) {
+      connection.console.log(`Definition: Document not found for URI ${params.textDocument.uri}`);
       return null;
     }
 
     const parsedDocument = getCachedDocument(params.textDocument.uri);
     if (!parsedDocument) {
+      connection.console.log(`Definition: Parsed document not in cache for URI ${params.textDocument.uri}`);
       return null;
     }
 
@@ -401,9 +419,16 @@ connection.onDefinition((params: TextDocumentPositionParams) => {
       params.textDocument.uri
     );
 
+    if (location) {
+      connection.console.log(`Definition: Found definition at line ${location.range.start.line}, character ${location.range.start.character}`);
+    }
+
     return location;
   } catch (error) {
-    console.error('Definition handler failed:', error);
+    connection.console.error(`Definition handler failed: ${error instanceof Error ? error.message : String(error)}`);
+    if (error instanceof Error && error.stack) {
+      connection.console.error(`Stack trace: ${error.stack}`);
+    }
     return null;
   }
 });
