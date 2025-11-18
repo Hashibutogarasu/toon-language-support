@@ -5,7 +5,6 @@ import { DiagnosticValidator, DiagnosticMessages } from './diagnostic-validator'
 
 /**
  * Validator for key-value pair syntax
- * Validates Requirements 4.1, 4.2, 4.3, 4.4, 4.5
  */
 export class KeyValuePairValidator implements DiagnosticValidator {
   validate(document: ToonDocument, textDocument: TextDocument): Diagnostic[] {

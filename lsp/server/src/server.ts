@@ -12,8 +12,7 @@ import {
   DocumentDiagnosticReportKind,
   type DocumentDiagnosticReport,
   Hover,
-  MarkupKind,
-  Position
+  MarkupKind
 } from 'vscode-languageserver/node';
 
 import {
@@ -23,12 +22,10 @@ import {
 import {
   parseToonDocument,
   ToonDocument,
-  Field,
   StructuredArray,
   SimpleArray,
   KeyValuePair,
-  ArrayData,
-  ToonLine
+  ArrayData
 } from './parser';
 import {
   DiagnosticValidator,
@@ -38,7 +35,6 @@ import {
   ArraySyntaxValidator
 } from './validators';
 import {
-  getFieldDefinitionForValue,
   findFieldDefinitionLocation
 } from './definition-provider';
 

@@ -5,7 +5,6 @@ import { DiagnosticValidator, DiagnosticMessages } from './diagnostic-validator'
 
 /**
  * Validator for array declaration syntax
- * Validates Requirements 5.1, 5.2, 5.3, 5.4, 5.5
  */
 export class ArraySyntaxValidator implements DiagnosticValidator {
   validate(document: ToonDocument, textDocument: TextDocument): Diagnostic[] {

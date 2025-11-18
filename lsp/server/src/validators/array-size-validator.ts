@@ -5,7 +5,6 @@ import { DiagnosticValidator, DiagnosticMessages } from './diagnostic-validator'
 
 /**
  * Validator for array size mismatches
- * Validates Requirements 2.1, 2.2, 2.3, 2.4, 2.5
  */
 export class ArraySizeValidator implements DiagnosticValidator {
   validate(document: ToonDocument, textDocument: TextDocument): Diagnostic[] {

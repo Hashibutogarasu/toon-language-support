@@ -5,7 +5,6 @@ import { DiagnosticValidator, DiagnosticMessages } from './diagnostic-validator'
 
 /**
  * Validator for structured array field count mismatches
- * Validates Requirements 3.1, 3.2, 3.3, 3.4
  */
 export class StructuredArrayFieldValidator implements DiagnosticValidator {
   validate(document: ToonDocument, textDocument: TextDocument): Diagnostic[] {
@@ -16,7 +15,7 @@ export class StructuredArrayFieldValidator implements DiagnosticValidator {
         // Check structured array data lines
         if (line.type === 'array-data' && line.parsed) {
           const arrayData = line.parsed as ArrayData;
-          
+
           // Only validate if we have a parent array reference
           if (arrayData.parentArray) {
             const expectedFieldCount = arrayData.parentArray.fields.length;
