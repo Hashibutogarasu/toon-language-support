@@ -13,13 +13,8 @@ describe('ArraySizeValidator - User reported issue', () => {
     const content = 'friends[3]: ana,luis,sam';
     const textDoc = createDocument(content);
     const parsedDoc = parseToonDocument(textDoc);
-    
-    console.log('Parsed document:', JSON.stringify(parsedDoc, null, 2));
-    
     const diagnostics = validator.validate(parsedDoc, textDoc);
-    
-    console.log('Diagnostics:', diagnostics);
-    
+
     expect(diagnostics).toHaveLength(0);
   });
 
@@ -27,13 +22,8 @@ describe('ArraySizeValidator - User reported issue', () => {
     const content = 'friends[2]: ana,luis,sam';
     const textDoc = createDocument(content);
     const parsedDoc = parseToonDocument(textDoc);
-    
-    console.log('Parsed document:', JSON.stringify(parsedDoc, null, 2));
-    
     const diagnostics = validator.validate(parsedDoc, textDoc);
-    
-    console.log('Diagnostics:', diagnostics);
-    
+
     expect(diagnostics.length).toBeGreaterThan(0);
     expect(diagnostics[0].message).toContain('超過');
   });
@@ -42,13 +32,8 @@ describe('ArraySizeValidator - User reported issue', () => {
     const content = 'friends[4]: ana,luis,sam';
     const textDoc = createDocument(content);
     const parsedDoc = parseToonDocument(textDoc);
-    
-    console.log('Parsed document:', JSON.stringify(parsedDoc, null, 2));
-    
     const diagnostics = validator.validate(parsedDoc, textDoc);
-    
-    console.log('Diagnostics:', diagnostics);
-    
+
     expect(diagnostics.length).toBeGreaterThan(0);
     expect(diagnostics[0].message).toContain('不足');
   });

@@ -37,6 +37,10 @@ import {
   KeyValuePairValidator,
   ArraySyntaxValidator
 } from './validators';
+import {
+  getFieldDefinitionForValue,
+  findFieldDefinitionLocation
+} from './definition-provider';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -76,7 +80,11 @@ connection.onInitialize((params: InitializeParams) => {
       diagnosticProvider: {
         interFileDependencies: false,
         workspaceDiagnostics: false
-      }
+      },
+      // Tell the client that this server supports hover
+      hoverProvider: true,
+      // Tell the client that this server supports go to definition
+      definitionProvider: true
     }
   };
   if (hasWorkspaceFolderCapability) {
@@ -240,6 +248,165 @@ connection.onCompletionResolve(
     return item;
   }
 );
+
+/**
+ * Handle hover requests
+ */
+connection.onHover((params: TextDocumentPositionParams): Hover | null => {
+  try {
+    const document = documents.get(params.textDocument.uri);
+    if (!document) {
+      return null;
+    }
+
+    const parsedDocument = getCachedDocument(params.textDocument.uri);
+    if (!parsedDocument) {
+      return null;
+    }
+
+    const position = params.position;
+    const line = parsedDocument.lines.find(l => l.lineNumber === position.line);
+
+    if (!line) {
+      return null;
+    }
+
+    // Handle structured array data values
+    if (line.type === 'array-data') {
+      const arrayData = line.parsed as ArrayData;
+      if (!arrayData.parentArray) {
+        return null;
+      }
+
+      // Find which value the cursor is on
+      for (let i = 0; i < arrayData.valueRanges.length; i++) {
+        const valueRange = arrayData.valueRanges[i];
+        if (
+          position.character >= valueRange.start.character &&
+          position.character <= valueRange.end.character
+        ) {
+          const field = arrayData.parentArray.fields[i];
+          if (field) {
+            const fieldDefLine = arrayData.parentArray.nameRange.start.line;
+            const hoverContent = [
+              `**Field:** ${field.name}`,
+              ``,
+              `[Go to definition](command:editor.action.goToLocations?${encodeURIComponent(JSON.stringify([
+                params.textDocument.uri,
+                params.position,
+                [{
+                  uri: params.textDocument.uri,
+                  range: field.range
+                }]
+              ]))})`
+            ].join('\n');
+
+            return {
+              contents: {
+                kind: MarkupKind.Markdown,
+                value: hoverContent
+              },
+              range: valueRange
+            };
+          }
+        }
+      }
+    }
+
+    // Handle structured array field definitions
+    if (line.type === 'structured-array') {
+      const structuredArray = line.parsed as StructuredArray;
+
+      for (const field of structuredArray.fields) {
+        if (
+          position.character >= field.range.start.character &&
+          position.character <= field.range.end.character
+        ) {
+          return {
+            contents: {
+              kind: MarkupKind.Markdown,
+              value: `**Field:** ${field.name}\n\n**Position:** ${field.index + 1} of ${structuredArray.fields.length}`
+            },
+            range: field.range
+          };
+        }
+      }
+    }
+
+    // Handle key-value pairs
+    if (line.type === 'key-value') {
+      const keyValuePair = line.parsed as KeyValuePair;
+
+      // Check if cursor is on the key
+      if (
+        position.character >= keyValuePair.keyRange.start.character &&
+        position.character <= keyValuePair.keyRange.end.character
+      ) {
+        return {
+          contents: {
+            kind: MarkupKind.Markdown,
+            value: `**Key:** ${keyValuePair.key}`
+          },
+          range: keyValuePair.keyRange
+        };
+      }
+    }
+
+    // Handle simple array values
+    if (line.type === 'simple-array') {
+      const simpleArray = line.parsed as SimpleArray;
+
+      for (let i = 0; i < simpleArray.valueRanges.length; i++) {
+        const valueRange = simpleArray.valueRanges[i];
+        if (
+          position.character >= valueRange.start.character &&
+          position.character <= valueRange.end.character
+        ) {
+          return {
+            contents: {
+              kind: MarkupKind.Markdown,
+              value: `**Array:** ${simpleArray.name}\n\n**Index:** ${i}`
+            },
+            range: valueRange
+          };
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Hover handler failed:', error);
+    return null;
+  }
+});
+
+/**
+ * Handle definition requests (Go to Definition)
+ */
+connection.onDefinition((params: TextDocumentPositionParams) => {
+  try {
+    const document = documents.get(params.textDocument.uri);
+    if (!document) {
+      return null;
+    }
+
+    const parsedDocument = getCachedDocument(params.textDocument.uri);
+    if (!parsedDocument) {
+      return null;
+    }
+
+    const location = findFieldDefinitionLocation(
+      params.position,
+      parsedDocument,
+      params.textDocument.uri
+    );
+
+    return location;
+  } catch (error) {
+    console.error('Definition handler failed:', error);
+    return null;
+  }
+});
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events
