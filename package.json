@@ -2,7 +2,7 @@
   "name": "toon-language-support",
   "displayName": "Toon Language Support(unofficial)",
   "description": "The language toon is likes optimized json.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "publisher": "hashibutogarasu",
   "engines": {

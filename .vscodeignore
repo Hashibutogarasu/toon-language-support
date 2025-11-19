@@ -4,14 +4,24 @@
 .gitignore
 **/tsconfig.json
 **/tsconfig.base.json
+**/tsconfig.tsbuildinfo
 contributing.md
 .travis.yml
-client/node_modules/**
-!client/node_modules/vscode-jsonrpc/**
-!client/node_modules/vscode-languageclient/**
-!client/node_modules/vscode-languageserver-protocol/**
-!client/node_modules/vscode-languageserver-types/**
-!client/node_modules/{minimatch,brace-expansion,concat-map,balanced-match}/**
-!client/node_modules/{semver,lru-cache,yallist}/**
 
+# Exclude development files
 .kiro/**
+test/**
+
+# Exclude all node_modules by default, then include runtime dependencies
+lsp/client/node_modules/**
+!lsp/client/node_modules/vscode-languageclient/**
+!lsp/client/node_modules/vscode-jsonrpc/**
+!lsp/client/node_modules/vscode-languageserver-protocol/**
+!lsp/client/node_modules/vscode-languageserver-types/**
+
+lsp/server/node_modules/**
+!lsp/server/node_modules/vscode-languageserver/**
+!lsp/server/node_modules/vscode-languageserver-textdocument/**
+!lsp/server/node_modules/vscode-jsonrpc/**
+!lsp/server/node_modules/vscode-languageserver-protocol/**
+!lsp/server/node_modules/vscode-languageserver-types/**
