@@ -2,7 +2,7 @@
   "name": "toon-language-support",
   "displayName": "Toon Language Support(unofficial)",
   "description": "The language toon is likes optimized json.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "publisher": "hashibutogarasu",
   "engines": {
@@ -25,6 +25,9 @@
     "url": "https://github.com/Hashibutogarasu/toon-language-support.git"
   },
   "main": "./lsp/client/out/extension.js",
+  "workspaces": [
+    "lsp/*"
+  ],
   "contributes": {
     "languages": [
       {
@@ -53,16 +56,16 @@
     "@eslint/js": "^9.39.1",
     "@stylistic/eslint-plugin": "^5.6.0",
     "@types/jest": "^30.0.0",
+    "@types/msgpack-lite": "^0.1.12",
     "@types/node": "^24.10.1",
     "babel-jest": "^30.2.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "fast-check": "^4.3.0",
     "jest": "^30.2.0",
+    "msgpack-lite": "^0.1.26",
     "ts-jest": "^29.4.5",
     "typescript-eslint": "^8.47.0",
-    "vsce": "^2.15.0",
-    "msgpack-lite": "^0.1.26",
-    "@types/msgpack-lite": "^0.1.7"
+    "vsce": "^2.15.0"
   },
   "dependencies": {
     "vscode-languageserver": "^9.0.1",
