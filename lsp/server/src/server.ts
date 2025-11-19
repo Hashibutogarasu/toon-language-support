@@ -4,14 +4,12 @@ import {
   Diagnostic,
   ProposedFeatures,
   InitializeParams,
-  CompletionItem,
   TextDocumentPositionParams,
   TextDocumentSyncKind,
   InitializeResult,
   DocumentDiagnosticReportKind,
   type DocumentDiagnosticReport,
-  Hover,
-  MarkupKind
+  Hover
 } from 'vscode-languageserver/node';
 
 import {
@@ -31,7 +29,7 @@ import {
 import {
   findFieldDefinitionLocation
 } from './definition-provider';
-import { ArrayData, KeyValuePair, SimpleArray, StructuredArray, ToonDocument } from './types';
+import { ToonDocument } from './types';
 import { HoverProviderFactory } from './providers/hover-provider-factory';
 import { safeExecute, safeExecuteAsync } from './utils/error-handler';
 
