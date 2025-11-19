@@ -5,7 +5,6 @@ import {
   Diagnostic,
   ProposedFeatures,
   InitializeParams,
-  DidChangeConfigurationNotification,
   CompletionItem,
   TextDocumentPositionParams,
   TextDocumentSyncKind,
@@ -43,7 +42,6 @@ const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
 
 let hasWorkspaceFolderCapability = false;
-let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
   const capabilities = params.capabilities;
@@ -52,11 +50,6 @@ connection.onInitialize((params: InitializeParams) => {
   // If not, we fall back using global settings.
   hasWorkspaceFolderCapability = !!(
     capabilities.workspace && !!capabilities.workspace.workspaceFolders
-  );
-  hasDiagnosticRelatedInformationCapability = !!(
-    capabilities.textDocument &&
-    capabilities.textDocument.publishDiagnostics &&
-    capabilities.textDocument.publishDiagnostics.relatedInformation
   );
 
   // Log initialization
@@ -101,8 +94,6 @@ connection.onInitialized(() => {
     });
   }
 });
-
-
 
 // Cache for parsed documents
 const documentCache = new Map<string, ToonDocument>();
@@ -174,10 +165,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
   return diagnostics;
 }
 
-connection.onDidChangeWatchedFiles(_change => {
-  // Write code to handle file changes if necessary
-});
-
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
   (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
@@ -235,7 +222,6 @@ connection.onHover((params: TextDocumentPositionParams): Hover | null => {
         ) {
           const field = arrayData.parentArray.fields[i];
           if (field) {
-            const fieldDefLine = arrayData.parentArray.nameRange.start.line;
             const hoverContent = [
               `**Field:** ${field.name}`,
               ``,
