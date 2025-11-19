@@ -2,7 +2,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { StructuredArrayParser } from './parsers/structured-array-parser';
 import { SimpleArrayParser } from './parsers/simple-array-parser';
 import { KeyValuePairParser } from './parsers/key-value-pair-parser';
-import { ParserFactory } from './parsers/factory';
+import { ParserFactory } from './parsers/parser-factory';
 import { ArrayData, KeyValuePair, Range, SimpleArray, StructuredArray, ToonDocument, ToonLine } from './types';
 
 /**
