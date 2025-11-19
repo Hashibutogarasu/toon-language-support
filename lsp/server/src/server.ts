@@ -45,7 +45,6 @@ const connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager.
 const documents = new TextDocuments(TextDocument);
 
-let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
@@ -54,9 +53,6 @@ connection.onInitialize((params: InitializeParams) => {
 
   // Does the client support the `workspace/configuration` request?
   // If not, we fall back using global settings.
-  hasConfigurationCapability = !!(
-    capabilities.workspace && !!capabilities.workspace.configuration
-  );
   hasWorkspaceFolderCapability = !!(
     capabilities.workspace && !!capabilities.workspace.workspaceFolders
   );
@@ -68,7 +64,7 @@ connection.onInitialize((params: InitializeParams) => {
 
   // Log initialization
   connection.console.log('Toon Language Server initializing...');
-  connection.console.log(`Client capabilities: configuration=${hasConfigurationCapability}, workspaceFolders=${hasWorkspaceFolderCapability}`);
+  connection.console.log(`Client capabilities: workspaceFolders=${hasWorkspaceFolderCapability}`);
 
   const result: InitializeResult = {
     capabilities: {
@@ -102,10 +98,6 @@ connection.onInitialize((params: InitializeParams) => {
 });
 
 connection.onInitialized(() => {
-  if (hasConfigurationCapability) {
-    // Register for all configuration changes.
-    connection.client.register(DidChangeConfigurationNotification.type, undefined);
-  }
   if (hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders(_event => {
       connection.console.log('Workspace folder change event received.');
@@ -113,49 +105,7 @@ connection.onInitialized(() => {
   }
 });
 
-// The Toon Language Server settings
-interface ToonSettings {
-  maxNumberOfProblems: number;
-}
 
-// The global settings, used when the `workspace/configuration` request is not supported by the client.
-// Please note that this is not the case when using this server with the client provided in this example
-// but could happen with other clients.
-const defaultSettings: ToonSettings = { maxNumberOfProblems: 1000 };
-let globalSettings: ToonSettings = defaultSettings;
-
-// Cache the settings of all open documents
-const documentSettings = new Map<string, Thenable<ToonSettings>>();
-
-connection.onDidChangeConfiguration(change => {
-  if (hasConfigurationCapability) {
-    // Reset all cached document settings
-    documentSettings.clear();
-  } else {
-    globalSettings = (
-      (change.settings.toonLanguageServer || defaultSettings)
-    );
-  }
-  // Refresh the diagnostics since the `maxNumberOfProblems` could have changed.
-  // We could optimize things here and re-fetch the setting first can compare it
-  // to the existing setting, but this is out of scope for this example.
-  connection.languages.diagnostics.refresh();
-});
-
-function getDocumentSettings(resource: string): Thenable<ToonSettings> {
-  if (!hasConfigurationCapability) {
-    return Promise.resolve(globalSettings);
-  }
-  let result = documentSettings.get(resource);
-  if (!result) {
-    result = connection.workspace.getConfiguration({
-      scopeUri: resource,
-      section: 'toonLanguageServer'
-    });
-    documentSettings.set(resource, result);
-  }
-  return result;
-}
 
 // Cache for parsed documents
 const documentCache = new Map<string, ToonDocument>();
@@ -174,7 +124,6 @@ function invalidateCache(uri: string): void {
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
-  documentSettings.delete(e.document.uri);
   documentCache.delete(e.document.uri);
 });
 
@@ -202,8 +151,6 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<Diagnostic[]> {
-  // In this simple example we get the settings for every validate run.
-  const settings = await getDocumentSettings(textDocument.uri);
 
   // Parse the document and cache it
   const parsedDocument = parseToonDocument(textDocument);

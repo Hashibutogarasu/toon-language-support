@@ -13,8 +13,8 @@ export class ArraySyntaxValidator implements DiagnosticValidator {
     for (const line of document.lines) {
       try {
         // Only validate lines that might be array declarations
-        // Skip empty lines and array data lines
-        if (line.type === 'empty' || line.type === 'array-data') {
+        // Skip array data lines
+        if (line.type === 'array-data') {
           continue;
         }
 
