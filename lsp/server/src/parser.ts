@@ -3,6 +3,7 @@ import { StructuredArrayParser } from './parsers/structured-array-parser';
 import { SimpleArrayParser } from './parsers/simple-array-parser';
 import { KeyValuePairParser } from './parsers/key-value-pair-parser';
 import { ParserFactory } from './parsers/parser-factory';
+import { DocumentPostProcessor, StructuredArrayPostProcessor } from './parsers/post-processors';
 import { ArrayData, KeyValuePair, Range, SimpleArray, StructuredArray, ToonDocument, ToonLine } from './types';
 
 /**
@@ -78,10 +79,6 @@ export function parseStructuredArray(
 export function parseToonDocument(textDocument: TextDocument): ToonDocument {
   const factory = new ParserFactory();
   // Register parsers (order matters: structured array before simple array before key-value)
-  // Actually, my regexes are specific enough, but structured array vs simple array overlap on name[size]
-  // Structured array has {fields}, simple array has : values
-  // KeyValuePair looks for colon.
-
   factory.register(new StructuredArrayParser());
   factory.register(new SimpleArrayParser());
   factory.register(new KeyValuePairParser());
@@ -113,24 +110,10 @@ export function parseToonDocument(textDocument: TextDocument): ToonDocument {
         parsed: result.parsed
       });
 
-      // If structured array, we need to add the data lines to the document lines
+      // If structured array, we need to advance the index
       if (result.type === 'structured-array') {
         const structuredArray = result.parsed as StructuredArray;
-        // We already consumed these lines in the parser, but we need to add them to the lines array
-        // The parser returned linesConsumed which includes the declaration line + data lines
-        // So we need to add (linesConsumed - 1) data lines
-
-        for (let j = 0; j < structuredArray.dataLines.length; j++) {
-          const dataLine = structuredArray.dataLines[j];
-          lines.push({
-            type: 'array-data',
-            lineNumber: i + j + 1,
-            content: textLines[i + j + 1],
-            parsed: dataLine
-          });
-        }
-
-        // Advance index
+        // Advance index by the number of data lines
         i += structuredArray.dataLines.length;
       }
       continue;
@@ -144,5 +127,15 @@ export function parseToonDocument(textDocument: TextDocument): ToonDocument {
     });
   }
 
-  return { lines };
+  // Run post-processors
+  const postProcessors: DocumentPostProcessor[] = [
+    new StructuredArrayPostProcessor()
+  ];
+
+  let processedLines = lines;
+  for (const processor of postProcessors) {
+    processedLines = processor.process(processedLines, textLines);
+  }
+
+  return { lines: processedLines };
 }

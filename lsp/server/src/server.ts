@@ -32,6 +32,8 @@ import {
   findFieldDefinitionLocation
 } from './definition-provider';
 import { ArrayData, KeyValuePair, SimpleArray, StructuredArray, ToonDocument } from './types';
+import { HoverProviderFactory } from './providers/hover-provider-factory';
+import { safeExecute, safeExecuteAsync } from './utils/error-handler';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -134,58 +136,44 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<Diagnostic[]> {
+  return safeExecuteAsync(connection, 'validateTextDocument', async () => {
+    // Parse the document and cache it
+    const parsedDocument = parseToonDocument(textDocument);
+    setCachedDocument(textDocument.uri, parsedDocument);
 
-  // Parse the document and cache it
-  const parsedDocument = parseToonDocument(textDocument);
-  setCachedDocument(textDocument.uri, parsedDocument);
+    // Run validators
+    const diagnostics: Diagnostic[] = [];
 
-  // Run validators
-  const diagnostics: Diagnostic[] = [];
+    const validators: DiagnosticValidator[] = [
+      new ArraySizeValidator(),
+      new StructuredArrayFieldValidator(),
+      new KeyValuePairValidator(),
+      new ArraySyntaxValidator()
+    ];
 
-  const validators: DiagnosticValidator[] = [
-    new ArraySizeValidator(),
-    new StructuredArrayFieldValidator(),
-    new KeyValuePairValidator(),
-    new ArraySyntaxValidator()
-  ];
-
-  for (const validator of validators) {
-    try {
-      const results = validator.validate(parsedDocument, textDocument);
-      diagnostics.push(...results);
-    } catch (error) {
-      connection.console.error(`Validator ${validator.constructor.name} failed: ${error instanceof Error ? error.message : String(error)}`);
-      if (error instanceof Error && error.stack) {
-        connection.console.error(`Stack trace: ${error.stack}`);
+    for (const validator of validators) {
+      try {
+        const results = validator.validate(parsedDocument, textDocument);
+        diagnostics.push(...results);
+      } catch (error) {
+        connection.console.error(`Validator ${validator.constructor.name} failed: ${error instanceof Error ? error.message : String(error)}`);
+        if (error instanceof Error && error.stack) {
+          connection.console.error(`Stack trace: ${error.stack}`);
+        }
       }
     }
-  }
 
-  return diagnostics;
+    return diagnostics;
+  }, []);
 }
-
-// This handler provides the initial list of the completion items.
-connection.onCompletion(
-  (_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-    // TODO: Implement Toon language-specific completion
-    return [];
-  }
-);
-
-// This handler resolves additional information for the item selected in
-// the completion list.
-connection.onCompletionResolve(
-  (item: CompletionItem): CompletionItem => {
-    // TODO: Implement Toon language-specific completion details
-    return item;
-  }
-);
 
 /**
  * Handle hover requests
  */
+const hoverFactory = new HoverProviderFactory();
+
 connection.onHover((params: TextDocumentPositionParams): Hover | null => {
-  try {
+  return safeExecute(connection, 'Hover handler', () => {
     const document = documents.get(params.textDocument.uri);
     if (!document) {
       connection.console.log(`Hover: Document not found for URI ${params.textDocument.uri}`);
@@ -205,122 +193,20 @@ connection.onHover((params: TextDocumentPositionParams): Hover | null => {
       return null;
     }
 
-    // Handle structured array data values
-    if (line.type === 'array-data') {
-      const arrayData = line.parsed as ArrayData;
-      if (!arrayData.parentArray) {
-        return null;
-      }
-
-      // Find which value the cursor is on
-      for (let i = 0; i < arrayData.valueRanges.length; i++) {
-        const valueRange = arrayData.valueRanges[i];
-        if (
-          position.character >= valueRange.start.character &&
-          position.character <= valueRange.end.character
-        ) {
-          const field = arrayData.parentArray.fields[i];
-          if (field) {
-            const hoverContent = [
-              `**Field:** ${field.name}`,
-              ``,
-              `[Go to definition](command:editor.action.goToLocations?${encodeURIComponent(JSON.stringify([
-                params.textDocument.uri,
-                params.position,
-                [{
-                  uri: params.textDocument.uri,
-                  range: field.range
-                }]
-              ]))})`
-            ].join('\n');
-
-            return {
-              contents: {
-                kind: MarkupKind.Markdown,
-                value: hoverContent
-              },
-              range: valueRange
-            };
-          }
-        }
-      }
-    }
-
-    // Handle structured array field definitions
-    if (line.type === 'structured-array') {
-      const structuredArray = line.parsed as StructuredArray;
-
-      for (const field of structuredArray.fields) {
-        if (
-          position.character >= field.range.start.character &&
-          position.character <= field.range.end.character
-        ) {
-          return {
-            contents: {
-              kind: MarkupKind.Markdown,
-              value: `**Field:** ${field.name}\n\n**Position:** ${field.index + 1} of ${structuredArray.fields.length}`
-            },
-            range: field.range
-          };
-        }
-      }
-    }
-
-    // Handle key-value pairs
-    if (line.type === 'key-value') {
-      const keyValuePair = line.parsed as KeyValuePair;
-
-      // Check if cursor is on the key
-      if (
-        position.character >= keyValuePair.keyRange.start.character &&
-        position.character <= keyValuePair.keyRange.end.character
-      ) {
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `**Key:** ${keyValuePair.key}`
-          },
-          range: keyValuePair.keyRange
-        };
-      }
-    }
-
-    // Handle simple array values
-    if (line.type === 'simple-array') {
-      const simpleArray = line.parsed as SimpleArray;
-
-      for (let i = 0; i < simpleArray.valueRanges.length; i++) {
-        const valueRange = simpleArray.valueRanges[i];
-        if (
-          position.character >= valueRange.start.character &&
-          position.character <= valueRange.end.character
-        ) {
-          return {
-            contents: {
-              kind: MarkupKind.Markdown,
-              value: `**Array:** ${simpleArray.name}\n\n**Index:** ${i}`
-            },
-            range: valueRange
-          };
-        }
-      }
+    const provider = hoverFactory.getProvider(line.type);
+    if (provider) {
+      return provider.getHover(line, params, document, parsedDocument);
     }
 
     return null;
-  } catch (error) {
-    connection.console.error(`Hover handler failed: ${error instanceof Error ? error.message : String(error)}`);
-    if (error instanceof Error && error.stack) {
-      connection.console.error(`Stack trace: ${error.stack}`);
-    }
-    return null;
-  }
+  }, null);
 });
 
 /**
  * Handle definition requests (Go to Definition)
  */
 connection.onDefinition((params: TextDocumentPositionParams) => {
-  try {
+  return safeExecute(connection, 'Definition handler', () => {
     const document = documents.get(params.textDocument.uri);
     if (!document) {
       connection.console.log(`Definition: Document not found for URI ${params.textDocument.uri}`);
@@ -338,13 +224,7 @@ connection.onDefinition((params: TextDocumentPositionParams) => {
       parsedDocument,
       params.textDocument.uri
     );
-  } catch (error) {
-    connection.console.error(`Definition handler failed: ${error instanceof Error ? error.message : String(error)}`);
-    if (error instanceof Error && error.stack) {
-      connection.console.error(`Stack trace: ${error.stack}`);
-    }
-    return null;
-  }
+  }, null);
 });
 
 // Make the text document manager listen on the connection
