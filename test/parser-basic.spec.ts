@@ -9,9 +9,8 @@ import {
   parseSimpleArray,
   parseStructuredArray,
   parseArrayData,
-  SimpleArray,
-  StructuredArray
 } from '../lsp/server/src/parser';
+import { SimpleArray, StructuredArray } from '../lsp/server/src/types';
 
 describe('Parser - Data Models and Basic Parsing', () => {
   describe('parseKeyValuePair', () => {

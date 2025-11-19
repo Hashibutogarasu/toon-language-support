@@ -1,5 +1,5 @@
 import { Position, Location } from 'vscode-languageserver/node';
-import { ToonDocument, Field, ArrayData } from './parser';
+import { ArrayData, Field, ToonDocument } from './types';
 
 /**
  * Get the field definition for a value at a given position in a structured array

@@ -1,7 +1,7 @@
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { ToonDocument, SimpleArray, StructuredArray } from '../parser';
 import { DiagnosticValidator, DiagnosticMessages } from './diagnostic-validator';
+import { SimpleArray, StructuredArray, ToonDocument } from '../types';
 
 /**
  * Validator for array size mismatches

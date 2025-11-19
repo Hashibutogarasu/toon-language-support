@@ -1,7 +1,7 @@
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { ToonDocument } from '../parser';
 import { DiagnosticValidator, DiagnosticMessages } from './diagnostic-validator';
+import { ToonDocument } from '../types';
 
 /**
  * Validator for key-value pair syntax

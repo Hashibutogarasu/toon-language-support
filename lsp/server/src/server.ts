@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   createConnection,
   TextDocuments,
@@ -21,11 +22,6 @@ import {
 
 import {
   parseToonDocument,
-  ToonDocument,
-  StructuredArray,
-  SimpleArray,
-  KeyValuePair,
-  ArrayData
 } from './parser';
 import {
   DiagnosticValidator,
@@ -37,6 +33,7 @@ import {
 import {
   findFieldDefinitionLocation
 } from './definition-provider';
+import { ArrayData, KeyValuePair, SimpleArray, StructuredArray, ToonDocument } from './types';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -116,10 +113,6 @@ function getCachedDocument(uri: string): ToonDocument | undefined {
 
 function setCachedDocument(uri: string, document: ToonDocument): void {
   documentCache.set(uri, document);
-}
-
-function invalidateCache(uri: string): void {
-  documentCache.delete(uri);
 }
 
 // Only keep settings for open documents

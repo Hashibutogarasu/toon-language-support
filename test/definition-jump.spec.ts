@@ -4,7 +4,7 @@
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Position } from 'vscode-languageserver/node';
-import { parseToonDocument, StructuredArray } from '../lsp/server/src/parser';
+import { parseToonDocument } from '../lsp/server/src/parser';
 import { getFieldDefinitionForValue, findFieldDefinitionLocation } from '../lsp/server/src/definition-provider';
 
 describe('Definition Jump Functionality', () => {
@@ -129,9 +129,6 @@ describe('Definition Jump Functionality', () => {
 
       const textDoc = TextDocument.create('test://test.toon', 'toon', 1, content);
       const parsed = parseToonDocument(textDoc);
-
-      const arrayLine = parsed.lines.find(l => l.type === 'structured-array');
-      const structuredArray = arrayLine?.parsed as StructuredArray;
 
       // Test first data line
       const dataLine1 = parsed.lines.find(l => l.type === 'array-data' && l.lineNumber === 1);

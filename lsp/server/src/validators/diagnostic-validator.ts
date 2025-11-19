@@ -1,6 +1,6 @@
 import { Diagnostic } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { ToonDocument } from '../parser';
+import { ToonDocument } from '../types';
 
 /**
  * Interface for diagnostic validators

@@ -3,7 +3,8 @@
  */
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { parseToonDocument, StructuredArray, SimpleArray, KeyValuePair } from '../lsp/server/src/parser';
+import { parseToonDocument } from '../lsp/server/src/parser';
+import { KeyValuePair, SimpleArray, StructuredArray } from '../lsp/server/src/types';
 
 describe('Hover Functionality', () => {
   describe('Structured Array Data Values', () => {
