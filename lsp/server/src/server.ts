@@ -165,11 +165,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
   }, []);
 }
 
-/**
- * Handle hover requests
- */
 const hoverFactory = new HoverProviderFactory();
-
 connection.onHover((params: TextDocumentPositionParams): Hover | null => {
   return safeExecute(connection, 'Hover handler', () => {
     const document = documents.get(params.textDocument.uri);
