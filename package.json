@@ -2,11 +2,11 @@
   "name": "toon-language-support",
   "displayName": "Toon Language Support(unofficial)",
   "description": "The language toon is likes optimized json.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "license": "MIT",
   "publisher": "hashibutogarasu",
   "engines": {
-    "vscode": "^1.106.1"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Programming Languages",
@@ -24,9 +24,10 @@
     "type": "git",
     "url": "https://github.com/Hashibutogarasu/toon-language-support.git"
   },
-  "main": "./lsp/client/out/extension.js",
+  "main": "./packages/lsp/client/out/extension.js",
   "workspaces": [
-    "lsp/*"
+    "packages/*",
+    "packages/lsp/*"
   ],
   "contributes": {
     "languages": [
@@ -35,22 +36,34 @@
         "extensions": [
           ".toon"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./packages/lsp/client/language-configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "toon",
         "scopeName": "source.toon",
-        "path": "./syntaxes/toon.tmLanguage.json"
+        "path": "./packages/lsp/client/syntaxes/toon.tmLanguage.json"
       }
     ]
   },
   "scripts": {
-    "test": "jest",
+    "build": "pnpm run build:core && pnpm run build:lsp-server && pnpm run build:lsp-client",
+    "build:core": "pnpm --filter @toon/core build",
+    "build:lsp-server": "pnpm --filter @toon/lsp-server build",
+    "build:lsp-client": "pnpm --filter @toon/lsp-client build",
+    "build:all": "pnpm -r build",
+    "clean": "pnpm -r clean",
+    "clean:all": "pnpm -r clean && rimraf node_modules",
+    "test": "pnpm --filter @toon/core test",
+    "test:all": "pnpm -r test",
     "compile": "tsc -b",
-    "watch": "tsc -b -w",
-    "vsix": "vsce package"
+    "watch": "pnpm -r --parallel watch",
+    "watch:core": "pnpm --filter @toon/core watch",
+    "watch:lsp-server": "pnpm --filter @toon/lsp-server watch",
+    "watch:lsp-client": "pnpm --filter @toon/lsp-client watch",
+    "vsix": "pnpm run build && vsce package --no-dependencies",
+    "vsix:clean": "pnpm run clean && pnpm run build && vsce package --no-dependencies"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -63,6 +76,7 @@
     "fast-check": "^4.3.0",
     "jest": "^30.2.0",
     "msgpack-lite": "^0.1.26",
+    "rimraf": "^5.0.0",
     "ts-jest": "^29.4.5",
     "typescript-eslint": "^8.47.0",
     "vsce": "^2.15.0"

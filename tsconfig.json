@@ -11,12 +11,16 @@
   },
   "include": ["src"],
   "exclude": ["node_modules", ".vscode-test"],
+  "files": [],
   "references": [
     {
-      "path": "./lsp/client"
+      "path": "./packages/core"
     },
     {
-      "path": "./lsp/server"
+      "path": "./packages/lsp/client"
+    },
+    {
+      "path": "./packages/lsp/server"
     }
   ]
 }

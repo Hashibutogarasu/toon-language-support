@@ -1,0 +1,31 @@
+{
+  "name": "@toon/core",
+  "version": "1.0.0",
+  "description": "Core parsing library for Toon language with AST-based implementation",
+  "main": "./out/index.js",
+  "types": "./out/index.d.ts",
+  "author": "Hashibutogarasu",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b -w",
+    "test": "jest --config jest.config.js",
+    "test:coverage": "jest --config jest.config.js --coverage",
+    "clean": "rimraf out"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
+    "fast-check": "^4.3.0",
+    "jest": "^30.2.0",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.4.5",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "out/**/*"
+  ]
+}

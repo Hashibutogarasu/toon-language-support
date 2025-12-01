@@ -1,0 +1,54 @@
+{
+  "name": "@toon/lsp-client",
+  "displayName": "Toon Language Support(unofficial)",
+  "description": "VSCode language client for Toon language",
+  "author": "Hashibutogarasu",
+  "license": "MIT",
+  "version": "0.0.1",
+  "publisher": "Hashibutogarasu",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
+  "activationEvents": [
+    "onLanguage:toon"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "toon",
+        "extensions": [
+          ".toon"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "toon",
+        "scopeName": "source.toon",
+        "path": "./syntaxes/toon.tmLanguage.json"
+      }
+    ]
+  },
+  "dependencies": {
+    "glob": "^11.0.0",
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.100.0",
+    "@vscode/test-electron": "^2.3.9",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b -w",
+    "clean": "rimraf out",
+    "test": "echo \"No tests configured for lsp-client\""
+  }
+}

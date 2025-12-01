@@ -1,0 +1,30 @@
+{
+  "name": "@toon/lsp-server",
+  "description": "Language server for the Toon language",
+  "version": "1.0.0",
+  "author": "Hashibutogarasu",
+  "license": "MIT",
+  "main": "./out/server.js",
+  "types": "./out/server.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@toon/core": "workspace:*",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b -w",
+    "clean": "rimraf out",
+    "test": "echo \"No tests configured for lsp-server\""
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "out/**/*"
+  ]
+}

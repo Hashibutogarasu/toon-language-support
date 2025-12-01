@@ -2,4 +2,5 @@ onlyBuiltDependencies:
   - core-js
   - unrs-resolver
 packages:
-  - "lsp/*"
+  - "packages/*"
+  - "packages/lsp/*"

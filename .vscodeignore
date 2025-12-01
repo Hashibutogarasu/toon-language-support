@@ -7,21 +7,28 @@
 **/tsconfig.tsbuildinfo
 contributing.md
 .travis.yml
+pnpm-lock.yaml
+pnpm-workspace.yaml
 
 # Exclude development files
 .kiro/**
 test/**
+**/test/**
+
+# Exclude source files (keep only compiled output)
+packages/core/src/**
+packages/lsp/server/src/**
+packages/lsp/client/src/**
 
 # Exclude all node_modules by default, then include runtime dependencies
-lsp/client/node_modules/**
-!lsp/client/node_modules/vscode-languageclient/**
-!lsp/client/node_modules/vscode-jsonrpc/**
-!lsp/client/node_modules/vscode-languageserver-protocol/**
-!lsp/client/node_modules/vscode-languageserver-types/**
+node_modules/**
+!node_modules/vscode-languageclient/**
+!node_modules/vscode-jsonrpc/**
+!node_modules/vscode-languageserver-protocol/**
+!node_modules/vscode-languageserver-types/**
+!node_modules/vscode-languageserver/**
+!node_modules/vscode-languageserver-textdocument/**
 
-lsp/server/node_modules/**
-!lsp/server/node_modules/vscode-languageserver/**
-!lsp/server/node_modules/vscode-languageserver-textdocument/**
-!lsp/server/node_modules/vscode-jsonrpc/**
-!lsp/server/node_modules/vscode-languageserver-protocol/**
-!lsp/server/node_modules/vscode-languageserver-types/**
+packages/core/node_modules/**
+packages/lsp/client/node_modules/**
+packages/lsp/server/node_modules/**

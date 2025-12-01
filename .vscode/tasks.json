@@ -2,28 +2,82 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "compile",
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
-      },
-      "problemMatcher": ["$tsc"]
-    },
-    {
-      "type": "npm",
-      "script": "watch",
-      "isBackground": true,
+      "label": "build",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["-r", "build"],
       "group": {
         "kind": "build",
         "isDefault": true
       },
       "presentation": {
         "panel": "dedicated",
+        "reveal": "silent"
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "watch",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["-r", "--parallel", "watch"],
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "panel": "dedicated",
         "reveal": "never"
       },
       "problemMatcher": ["$tsc-watch"]
+    },
+    {
+      "label": "build:core",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@toon/core", "build"],
+      "group": "build",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "silent"
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "build:lsp-server",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@toon/lsp-server", "build"],
+      "group": "build",
+      "dependsOn": ["build:core"],
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "silent"
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "build:lsp-client",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@toon/lsp-client", "build"],
+      "group": "build",
+      "dependsOn": ["build:lsp-server"],
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "silent"
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["-r", "test"],
+      "group": "test",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      },
+      "problemMatcher": []
     }
   ]
 }

@@ -12,20 +12,32 @@
       "runtimeExecutable": "${execPath}",
       "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
       "outFiles": [
-        "${workspaceRoot}/lsp/client/out/**/*.js",
-        "${workspaceRoot}/lsp/server/out/**/*.js"
+        "${workspaceRoot}/packages/lsp/client/out/**/*.js",
+        "${workspaceRoot}/packages/lsp/server/out/**/*.js",
+        "${workspaceRoot}/packages/core/out/**/*.js"
       ],
       "autoAttachChildProcesses": true,
-      "preLaunchTask": {
-        "type": "npm",
-        "script": "watch"
-      }
+      "preLaunchTask": "build"
     },
     {
       "name": "Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}"]
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "outFiles": [
+        "${workspaceRoot}/packages/lsp/client/out/**/*.js",
+        "${workspaceRoot}/packages/lsp/server/out/**/*.js",
+        "${workspaceRoot}/packages/core/out/**/*.js"
+      ],
+      "preLaunchTask": "build"
+    },
+    {
+      "name": "Attach to Server",
+      "type": "node",
+      "request": "attach",
+      "port": 6009,
+      "restart": true,
+      "outFiles": ["${workspaceRoot}/packages/lsp/server/out/**/*.js"]
     }
   ]
 }
