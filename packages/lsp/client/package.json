@@ -13,9 +13,6 @@
     "Programming Languages",
     "Linters"
   ],
-  "activationEvents": [
-    "onLanguage:toon"
-  ],
   "main": "./out/extension.js",
   "contributes": {
     "languages": [
