@@ -2,7 +2,7 @@
   "name": "toon-language-support",
   "displayName": "Toon Language Support(unofficial)",
   "description": "The language toon is likes optimized json.",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "license": "MIT",
   "publisher": "hashibutogarasu",
   "engines": {
@@ -21,7 +21,7 @@
     "type": "git",
     "url": "https://github.com/Hashibutogarasu/toon-language-support.git"
   },
-  "main": "./packages/lsp/client/out/extension.js",
+  "main": "./out/client/src/extension.js",
   "workspaces": [
     "packages/*",
     "packages/lsp/*"
@@ -36,14 +36,14 @@
         "extensions": [
           ".toon"
         ],
-        "configuration": "./packages/lsp/client/language-configuration.json"
+        "configuration": "./out/client/language-configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "toon",
         "scopeName": "source.toon",
-        "path": "./packages/lsp/client/syntaxes/toon.tmLanguage.json"
+        "path": "./out/client/syntaxes/toon.tmLanguage.json"
       }
     ],
     "commands": [
@@ -84,20 +84,21 @@
     }
   },
   "scripts": {
-    "build": "pnpm run build:core && pnpm run build:lsp-server && pnpm run build:lsp-client",
+    "compile": "pnpm run check-types && node esbuild.js",
+    "compile:production": "pnpm run check-types && node esbuild.js --production",
+    "check-types": "tsc -b",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc -b -w",
+    "build": "pnpm run compile:production",
     "build:core": "pnpm --filter @toon/core build",
     "build:lsp-server": "pnpm --filter @toon/lsp-server build",
     "build:lsp-client": "pnpm --filter @toon/lsp-client build",
     "build:all": "pnpm -r build",
-    "clean": "pnpm -r clean",
-    "clean:all": "pnpm -r clean && rimraf node_modules",
+    "clean": "rimraf out && pnpm -r clean",
+    "clean:all": "pnpm -r clean && rimraf node_modules out",
     "test": "pnpm --filter @toon/core test",
     "test:all": "pnpm -r test",
-    "compile": "tsc -b",
-    "watch": "pnpm -r --parallel watch",
-    "watch:core": "pnpm --filter @toon/core watch",
-    "watch:lsp-server": "pnpm --filter @toon/lsp-server watch",
-    "watch:lsp-client": "pnpm --filter @toon/lsp-client watch",
     "vsix": "pnpm run build && vsce package --no-dependencies",
     "vsix:publish": "pnpm run vsix && vsce publish --no-dependencies",
     "vsix:clean": "pnpm run clean && pnpm run build && vsce package --no-dependencies"
@@ -110,9 +111,11 @@
     "@types/node": "^24.10.1",
     "babel-jest": "^30.2.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "esbuild": "^0.27.0",
     "fast-check": "^4.3.0",
     "jest": "^30.2.0",
     "msgpack-lite": "^0.1.26",
+    "npm-run-all": "^4.1.5",
     "rimraf": "^5.0.0",
     "ts-jest": "^29.4.5",
     "typescript-eslint": "^8.47.0",

@@ -21,9 +21,9 @@ let client: LanguageClient;
 
 export function activate(context: ExtensionContext) {
   // The server is implemented in node
-  // Server is now in packages/lsp/server
+  // Server is bundled into out/server/src/server.js
   const serverModule = context.asAbsolutePath(
-    path.join('packages', 'lsp', 'server', 'out', 'server.js')
+    path.join('out', 'server', 'src', 'server.js')
   );
 
   // If the extension is launched in debug mode then the debug server options are used

@@ -1,34 +1,47 @@
 .vscode/**
-**/*.ts
-**/*.map
+.kiro/**
+.git/**
 .gitignore
+.gitattributes
+
+# Source files (TypeScript)
+**/*.ts
+**/*.d.ts
+**/*.map
 **/tsconfig.json
 **/tsconfig.base.json
 **/tsconfig.tsbuildinfo
+
+# Development files
 contributing.md
 .travis.yml
 pnpm-lock.yaml
 pnpm-workspace.yaml
+package-lock.json
 
-# Exclude development files
-.kiro/**
+# Tests
 test/**
 **/test/**
+**/*.spec.ts
+**/*.spec.js
+jest.config.js
+**/jest.config.js
 
-# Exclude source files (keep only compiled output)
-packages/core/src/**
-packages/lsp/server/src/**
-packages/lsp/client/src/**
+# Build tools
+esbuild.js
+eslint.config.mjs
 
-# Exclude all node_modules by default, then include runtime dependencies
+# Examples (optional - remove if you want to include examples)
+# example/**
+
+# Exclude packages source and intermediate builds
+packages/core/**
+packages/lsp/server/**
+packages/lsp/client/**
+
+# Exclude all node_modules
 node_modules/**
-!node_modules/vscode-languageclient/**
-!node_modules/vscode-jsonrpc/**
-!node_modules/vscode-languageserver-protocol/**
-!node_modules/vscode-languageserver-types/**
-!node_modules/vscode-languageserver/**
-!node_modules/vscode-languageserver-textdocument/**
+**/node_modules/**
 
-packages/core/node_modules/**
-packages/lsp/client/node_modules/**
-packages/lsp/server/node_modules/**
+# Old VSIX files
+*.vsix
