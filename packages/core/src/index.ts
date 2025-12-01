@@ -16,3 +16,6 @@ export * from './visitor';
 
 // Events
 export * from './events';
+
+// Serializer
+export * from './serializer';
