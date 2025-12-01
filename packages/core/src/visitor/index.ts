@@ -9,6 +9,7 @@ import {
   ASTNode,
   DocumentNode,
   KeyValuePairNode,
+  BlockNode,
   SimpleArrayNode,
   StructuredArrayNode,
   FieldNode,
@@ -32,6 +33,8 @@ export interface ASTVisitor {
   visitDocument?(node: DocumentNode): void;
   /** Visit a key-value pair node */
   visitKeyValuePair?(node: KeyValuePairNode): void;
+  /** Visit a block structure node */
+  visitBlock?(node: BlockNode): void;
   /** Visit a simple array node */
   visitSimpleArray?(node: SimpleArrayNode): void;
   /** Visit a structured array node */

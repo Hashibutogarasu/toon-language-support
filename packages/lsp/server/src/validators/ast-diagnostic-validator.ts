@@ -1,6 +1,7 @@
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver/node';
 import {
   ASTVisitor,
+  BlockNode,
   DocumentNode,
   KeyValuePairNode,
   SimpleArrayNode,
@@ -53,6 +54,28 @@ export class ASTDiagnosticValidator implements ASTVisitor {
   visitDocument(_node: DocumentNode): void {
     // Document node itself doesn't need validation
     // Children will be visited by the walker
+  }
+
+  /**
+   * Visit block node - validate block structure
+   * 
+   * BlockNodes represent block headers with indented children.
+   * We do NOT report MISSING_VALUE for block headers since the
+   * colon without a value is intentional for block structures.
+   * 
+   * Optionally warns if the block has no children.
+   */
+  visitBlock(node: BlockNode): void {
+    // Optionally warn if block has no children
+    if (node.children.length === 0) {
+      this.diagnostics.push({
+        severity: DiagnosticSeverity.Warning,
+        range: toRange(node.range),
+        message: DiagnosticMessages.EMPTY_BLOCK,
+        source: 'toon'
+      });
+    }
+    // Children are validated through normal AST walker traversal
   }
 
   /**

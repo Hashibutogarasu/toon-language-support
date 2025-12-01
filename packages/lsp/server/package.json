@@ -18,10 +18,14 @@
     "build": "tsc -b",
     "watch": "tsc -b -w",
     "clean": "rimraf out",
-    "test": "echo \"No tests configured for lsp-server\""
+    "test": "jest --config jest.config.js"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "fast-check": "^4.3.0",
+    "jest": "^30.2.0",
     "rimraf": "^5.0.0",
+    "ts-jest": "^29.4.5",
     "typescript": "^5.0.0"
   },
   "files": [

@@ -15,6 +15,7 @@ export { NodeHandlerFactory } from './factory';
 export {
   DocumentNodeHandler,
   KeyValuePairNodeHandler,
+  BlockNodeHandler,
   SimpleArrayNodeHandler,
   StructuredArrayNodeHandler,
   FieldNodeHandler,

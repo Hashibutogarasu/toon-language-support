@@ -32,6 +32,7 @@ export interface Range {
 export type ASTNodeType =
   | 'document'
   | 'key-value-pair'
+  | 'block'
   | 'simple-array'
   | 'structured-array'
   | 'field'
@@ -76,6 +77,25 @@ export interface KeyValuePairNode extends ASTNode {
   valueRange: Range;
   /** Character position of the colon separator */
   colonPosition: number;
+}
+
+/**
+ * Block structure node: "key:" followed by indented children
+ * Represents hierarchical block structures like:
+ *   context:
+ *     task: value
+ *     other: value
+ */
+export interface BlockNode extends ASTNode {
+  type: 'block';
+  /** The block header key (e.g., "context") */
+  key: string;
+  /** Range of the key in the source */
+  keyRange: Range;
+  /** Character position of the colon separator */
+  colonPosition: number;
+  /** Child nodes (can be KeyValuePairNode, BlockNode, etc.) */
+  children: ASTNode[];
 }
 
 /**

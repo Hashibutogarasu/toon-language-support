@@ -10,6 +10,7 @@ import { NodeHandler } from './types';
 import {
   DocumentNodeHandler,
   KeyValuePairNodeHandler,
+  BlockNodeHandler,
   SimpleArrayNodeHandler,
   StructuredArrayNodeHandler,
   FieldNodeHandler,
@@ -58,6 +59,7 @@ export class NodeHandlerFactory {
   private registerDefaultHandlers(): void {
     this.registerHandler('document', new DocumentNodeHandler());
     this.registerHandler('key-value-pair', new KeyValuePairNodeHandler());
+    this.registerHandler('block', new BlockNodeHandler());
     this.registerHandler('simple-array', new SimpleArrayNodeHandler());
     this.registerHandler('structured-array', new StructuredArrayNodeHandler());
     this.registerHandler('field', new FieldNodeHandler());

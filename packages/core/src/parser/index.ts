@@ -9,6 +9,7 @@ import {
   ASTNode,
   DocumentNode,
   KeyValuePairNode,
+  BlockNode,
   SimpleArrayNode,
   StructuredArrayNode,
   FieldNode,
@@ -170,6 +171,12 @@ export class Toon extends ToonEventEmitterBase {
     const simpleArrayResult = this.tryParseSimpleArray(line, lineNumber);
     if (simpleArrayResult) {
       return simpleArrayResult;
+    }
+
+    // Try block structure (key: with indented children)
+    const blockResult = this.tryParseBlockStructure(line, lineNumber, allLines);
+    if (blockResult) {
+      return blockResult;
     }
 
     // Try key-value pair
@@ -383,6 +390,250 @@ export class Toon extends ToonEventEmitterBase {
     }
 
     return { node: simpleArrayNode, linesConsumed: 1 };
+  }
+
+  /**
+   * Try to parse a block structure: key: (with indented children)
+   * A block is a line with "key:" (no value) followed by indented lines.
+   */
+  private tryParseBlockStructure(
+    line: string,
+    lineNumber: number,
+    allLines: string[]
+  ): { node: BlockNode; linesConsumed: number } | null {
+    const colonIndex = line.indexOf(':');
+    if (colonIndex === -1) {
+      return null;
+    }
+
+    // If it looks like an array declaration (has brackets before colon), skip
+    const bracketIndex = line.indexOf('[');
+    if (bracketIndex !== -1 && bracketIndex < colonIndex) {
+      return null;
+    }
+
+    const key = line.substring(0, colonIndex).trim();
+    const valueAfterColon = line.substring(colonIndex + 1).trim();
+
+    // Block structure requires: no value after colon AND next line is indented
+    if (valueAfterColon.length > 0) {
+      return null;
+    }
+
+    // Check if there's a next line and if it's indented
+    const nextLineIndex = lineNumber + 1;
+    if (nextLineIndex >= allLines.length) {
+      return null;
+    }
+
+    const nextLine = allLines[nextLineIndex];
+    const currentIndent = this.getIndentLevel(line);
+    const nextIndent = this.getIndentLevel(nextLine);
+
+    // Next line must be more indented and non-empty
+    if (nextLine.trim().length === 0 || nextIndent <= currentIndent) {
+      return null;
+    }
+
+    // Parse all consecutively indented children
+    const children: ASTNode[] = [];
+    let childLineIndex = nextLineIndex;
+    const childIndentLevel = nextIndent;
+
+    while (childLineIndex < allLines.length) {
+      const childLine = allLines[childLineIndex];
+      const childTrimmed = childLine.trim();
+
+      // Stop if empty line or less/equal indentation to block header
+      if (childTrimmed.length === 0) {
+        childLineIndex++;
+        continue; // Skip empty lines within block
+      }
+
+      const childIndent = this.getIndentLevel(childLine);
+      if (childIndent < childIndentLevel) {
+        break; // End of block children
+      }
+
+      // Parse the child line recursively
+      const childResult = this.parseBlockChild(childLine, childLineIndex, allLines, childIndentLevel);
+      if (childResult.node && childResult.node.type !== 'empty') {
+        children.push(childResult.node);
+      }
+      childLineIndex += childResult.linesConsumed;
+    }
+
+    // If no children were found, this is not a block structure
+    if (children.length === 0) {
+      return null;
+    }
+
+    const keyStartChar = line.indexOf(key);
+    const lastChild = children[children.length - 1];
+    const endLine = lastChild.range.end.line;
+    const endChar = lastChild.range.end.character;
+
+    const blockNode: BlockNode = {
+      type: 'block',
+      key,
+      keyRange: createRange(lineNumber, keyStartChar, lineNumber, keyStartChar + key.length),
+      colonPosition: colonIndex,
+      children,
+      range: createRange(lineNumber, 0, endLine, endChar),
+    };
+
+    // Set parent references for all children
+    for (const child of children) {
+      child.parent = blockNode;
+    }
+
+    const linesConsumed = childLineIndex - lineNumber;
+    return { node: blockNode, linesConsumed };
+  }
+
+  /**
+   * Parse a child line within a block structure
+   */
+  private parseBlockChild(
+    line: string,
+    lineNumber: number,
+    allLines: string[],
+    blockIndentLevel: number
+  ): { node: ASTNode | null; linesConsumed: number } {
+    const trimmedLine = line.trim();
+
+    // Empty line
+    if (trimmedLine.length === 0) {
+      return {
+        node: this.createEmptyNode(lineNumber, line.length),
+        linesConsumed: 1,
+      };
+    }
+
+    // Try nested block structure first
+    const nestedBlockResult = this.tryParseNestedBlockStructure(line, lineNumber, allLines, blockIndentLevel);
+    if (nestedBlockResult) {
+      return nestedBlockResult;
+    }
+
+    // Try key-value pair
+    const keyValueResult = this.tryParseKeyValuePair(line, lineNumber);
+    if (keyValueResult) {
+      return keyValueResult;
+    }
+
+    // Unknown line type - treat as empty
+    return {
+      node: this.createEmptyNode(lineNumber, line.length),
+      linesConsumed: 1,
+    };
+  }
+
+  /**
+   * Try to parse a nested block structure within a parent block
+   */
+  private tryParseNestedBlockStructure(
+    line: string,
+    lineNumber: number,
+    allLines: string[],
+    _parentIndentLevel: number
+  ): { node: BlockNode; linesConsumed: number } | null {
+    const colonIndex = line.indexOf(':');
+    if (colonIndex === -1) {
+      return null;
+    }
+
+    // If it looks like an array declaration (has brackets before colon), skip
+    const bracketIndex = line.indexOf('[');
+    if (bracketIndex !== -1 && bracketIndex < colonIndex) {
+      return null;
+    }
+
+    const key = line.substring(0, colonIndex).trim();
+    const valueAfterColon = line.substring(colonIndex + 1).trim();
+
+    // Block structure requires: no value after colon
+    if (valueAfterColon.length > 0) {
+      return null;
+    }
+
+    // Check if there's a next line and if it's more indented
+    const nextLineIndex = lineNumber + 1;
+    if (nextLineIndex >= allLines.length) {
+      return null;
+    }
+
+    const nextLine = allLines[nextLineIndex];
+    const currentIndent = this.getIndentLevel(line);
+    const nextIndent = this.getIndentLevel(nextLine);
+
+    // Next line must be more indented than current line and non-empty
+    if (nextLine.trim().length === 0 || nextIndent <= currentIndent) {
+      return null;
+    }
+
+    // Parse all consecutively indented children
+    const children: ASTNode[] = [];
+    let childLineIndex = nextLineIndex;
+    const childIndentLevel = nextIndent;
+
+    while (childLineIndex < allLines.length) {
+      const childLine = allLines[childLineIndex];
+      const childTrimmed = childLine.trim();
+
+      // Stop if empty line or less indentation than child level
+      if (childTrimmed.length === 0) {
+        childLineIndex++;
+        continue; // Skip empty lines within block
+      }
+
+      const childIndent = this.getIndentLevel(childLine);
+      if (childIndent < childIndentLevel) {
+        break; // End of nested block children
+      }
+
+      // Parse the child line recursively
+      const childResult = this.parseBlockChild(childLine, childLineIndex, allLines, childIndentLevel);
+      if (childResult.node && childResult.node.type !== 'empty') {
+        children.push(childResult.node);
+      }
+      childLineIndex += childResult.linesConsumed;
+    }
+
+    // If no children were found, this is not a block structure
+    if (children.length === 0) {
+      return null;
+    }
+
+    const keyStartChar = line.indexOf(key);
+    const lastChild = children[children.length - 1];
+    const endLine = lastChild.range.end.line;
+    const endChar = lastChild.range.end.character;
+
+    const blockNode: BlockNode = {
+      type: 'block',
+      key,
+      keyRange: createRange(lineNumber, keyStartChar, lineNumber, keyStartChar + key.length),
+      colonPosition: colonIndex,
+      children,
+      range: createRange(lineNumber, 0, endLine, endChar),
+    };
+
+    // Set parent references for all children
+    for (const child of children) {
+      child.parent = blockNode;
+    }
+
+    const linesConsumed = childLineIndex - lineNumber;
+    return { node: blockNode, linesConsumed };
+  }
+
+  /**
+   * Get the indentation level of a line (number of leading whitespace characters)
+   */
+  private getIndentLevel(line: string): number {
+    const match = line.match(/^(\s*)/);
+    return match ? match[1].length : 0;
   }
 
   /**

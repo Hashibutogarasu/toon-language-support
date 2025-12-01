@@ -13,5 +13,6 @@ export const DiagnosticMessages = {
   MISSING_CLOSING_BRACKET: '閉じ角括弧が見つかりません',
   MISSING_ARRAY_SIZE: '配列サイズが指定されていません',
   INVALID_ARRAY_SIZE: '配列サイズは数値である必要があります',
-  MISSING_CLOSING_BRACE: '閉じ波括弧が見つかりません'
+  MISSING_CLOSING_BRACE: '閉じ波括弧が見つかりません',
+  EMPTY_BLOCK: 'ブロック構造に子要素がありません'
 };

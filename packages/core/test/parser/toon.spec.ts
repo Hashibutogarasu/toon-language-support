@@ -444,12 +444,23 @@ hikes[2]{id,name}:
 
       const ast = toon.parse(input);
 
-      // Should have: context, task, location, empty, friends, empty, hikes
+      // Should have: block (context with children), empty, friends, empty, hikes
       const types = ast.children.map(c => c.type);
-      expect(types).toContain('key-value-pair');
+      expect(types).toContain('block'); // context: with indented children is now a BlockNode
       expect(types).toContain('simple-array');
       expect(types).toContain('structured-array');
       expect(types).toContain('empty');
+
+      // Verify the block structure contains the key-value pairs as children
+      const blockNode = ast.children.find(c => c.type === 'block');
+      expect(blockNode).toBeDefined();
+      if (blockNode && blockNode.type === 'block') {
+        const block = blockNode as import('../../src/ast').BlockNode;
+        expect(block.key).toBe('context');
+        expect(block.children).toHaveLength(2);
+        expect(block.children[0].type).toBe('key-value-pair');
+        expect(block.children[1].type).toBe('key-value-pair');
+      }
     });
   });
 });

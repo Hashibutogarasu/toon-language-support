@@ -13,6 +13,7 @@ export {
   // Specific node types
   DocumentNode,
   KeyValuePairNode,
+  BlockNode,
   ValueNode,
   SimpleArrayNode,
   FieldNode,

@@ -4,6 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { workspace, ExtensionContext } from 'vscode';
 
 import {
@@ -12,6 +13,9 @@ import {
   ServerOptions,
   TransportKind
 } from 'vscode-languageclient/node';
+
+import { ToonFormatter } from './formatter';
+import { convertJsonToToon, convertToonToJson } from './commands';
 
 let client: LanguageClient;
 
@@ -52,6 +56,21 @@ export function activate(context: ExtensionContext) {
 
   // Start the client. This will also launch the server
   client.start();
+
+  // Register the Toon formatter
+  const formatter = new ToonFormatter();
+  context.subscriptions.push(
+    vscode.languages.registerDocumentFormattingEditProvider(
+      { language: 'toon', scheme: 'file' },
+      formatter
+    )
+  );
+
+  // Register conversion commands
+  context.subscriptions.push(
+    vscode.commands.registerCommand('toon.convertJsonToToon', convertJsonToToon),
+    vscode.commands.registerCommand('toon.convertToonToJson', convertToonToJson)
+  );
 }
 
 export function deactivate(): Thenable<void> | undefined {

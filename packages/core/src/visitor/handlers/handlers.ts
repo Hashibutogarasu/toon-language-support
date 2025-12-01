@@ -9,6 +9,7 @@ import {
   ASTNode,
   DocumentNode,
   KeyValuePairNode,
+  BlockNode,
   SimpleArrayNode,
   StructuredArrayNode,
   FieldNode,
@@ -45,6 +46,18 @@ export class KeyValuePairNodeHandler implements NodeHandler {
   }
 }
 
+/**
+ * Handler for BlockNode
+ */
+export class BlockNodeHandler implements NodeHandler {
+  visit(node: ASTNode, visitor: ASTVisitor): void {
+    visitor.visitBlock?.(node as BlockNode);
+  }
+
+  getChildren(node: ASTNode): ASTNode[] {
+    return (node as BlockNode).children;
+  }
+}
 
 /**
  * Handler for SimpleArrayNode

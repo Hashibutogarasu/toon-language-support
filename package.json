@@ -42,7 +42,43 @@
         "scopeName": "source.toon",
         "path": "./packages/lsp/client/syntaxes/toon.tmLanguage.json"
       }
-    ]
+    ],
+    "commands": [
+      {
+        "command": "toon.convertJsonToToon",
+        "title": "Convert to Toon",
+        "category": "Toon"
+      },
+      {
+        "command": "toon.convertToonToJson",
+        "title": "Convert to JSON",
+        "category": "Toon"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "toon.convertJsonToToon",
+          "when": "resourceExtname == .json",
+          "group": "7_modification"
+        },
+        {
+          "command": "toon.convertToonToJson",
+          "when": "resourceExtname == .toon",
+          "group": "7_modification"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "toon.convertJsonToToon",
+          "when": "resourceExtname == .json"
+        },
+        {
+          "command": "toon.convertToonToJson",
+          "when": "resourceExtname == .toon"
+        }
+      ]
+    }
   },
   "scripts": {
     "build": "pnpm run build:core && pnpm run build:lsp-server && pnpm run build:lsp-client",
