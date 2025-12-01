@@ -26,6 +26,9 @@
     "packages/*",
     "packages/lsp/*"
   ],
+  "activationEvents": [
+    "onLanguage:toon"
+  ],
   "contributes": {
     "languages": [
       {

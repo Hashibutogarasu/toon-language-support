@@ -14,6 +14,9 @@
     "Linters"
   ],
   "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:toon"
+  ],
   "contributes": {
     "languages": [
       {
