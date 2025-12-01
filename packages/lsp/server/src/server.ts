@@ -231,6 +231,25 @@ connection.onDefinition((params: TextDocumentPositionParams): Location | null =>
   }, null);
 });
 
+/**
+ * Handle completion requests
+ * Currently returns an empty list - can be extended to provide actual completions
+ */
+connection.onCompletion((_params: TextDocumentPositionParams) => {
+  // Return empty completion list for now
+  // This prevents the "Unhandled method" error
+  return [];
+});
+
+/**
+ * Handle completion resolve requests
+ * This is called when a completion item is selected to get additional details
+ */
+connection.onCompletionResolve((item) => {
+  // Return the item as-is since we don't have additional details to add
+  return item;
+});
+
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 documents.listen(connection);
