@@ -97,11 +97,11 @@ const toon = new Toon();
 
 // Set up event handlers for parse events
 toon.on('parse:start', (_event) => {
-  connection.console.log('Parse started');
+  // connection.console.log('Parse started');
 });
 
-toon.on('parse:complete', (event) => {
-  connection.console.log(`Parse complete: ${event.ast.children.length} top-level nodes`);
+toon.on('parse:complete', () => {
+  // connection.console.log(`Parse complete: ${event.ast.children.length} top-level nodes`);
 });
 
 toon.on('parse:error', (event) => {

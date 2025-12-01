@@ -23,7 +23,7 @@ import {
   ParseError,
 } from '../events';
 
-import { ASTVisitor } from '../visitor';
+import { ASTVisitor, ASTWalker } from '../visitor';
 
 /**
  * Options for configuring the Toon parser
@@ -51,10 +51,16 @@ export interface TextDocument {
  */
 export class Toon extends ToonEventEmitterBase {
   private options: ToonOptions;
+  private walker: ASTWalker;
 
   constructor(options?: ToonOptions) {
     super();
     this.options = options ?? {};
+    this.walker = new ASTWalker({
+      onNodeVisit: this.options.emitNodeVisits
+        ? (node, depth) => this.emitNodeVisit(node, depth)
+        : undefined,
+    });
   }
 
   /**
@@ -133,61 +139,7 @@ export class Toon extends ToonEventEmitterBase {
     if (!ast) {
       ast = this.parse('');
     }
-    this.walkNode(ast, visitor, 0);
-  }
-
-  /**
-   * Walk an AST node and its children, calling visitor methods
-   * TODO: replace switch to factory pattern
-   */
-  private walkNode(node: ASTNode, visitor: ASTVisitor, depth: number): void {
-    // Emit node:visit event if enabled
-    if (this.options.emitNodeVisits) {
-      this.emitNodeVisit(node, depth);
-    }
-
-    // Call appropriate visitor method based on node type
-    switch (node.type) {
-      case 'document':
-        visitor.visitDocument?.(node as DocumentNode);
-        for (const child of (node as DocumentNode).children) {
-          this.walkNode(child, visitor, depth + 1);
-        }
-        break;
-      case 'key-value-pair':
-        visitor.visitKeyValuePair?.(node as KeyValuePairNode);
-        break;
-      case 'simple-array':
-        visitor.visitSimpleArray?.(node as SimpleArrayNode);
-        for (const value of (node as SimpleArrayNode).values) {
-          this.walkNode(value, visitor, depth + 1);
-        }
-        break;
-      case 'structured-array':
-        visitor.visitStructuredArray?.(node as StructuredArrayNode);
-        for (const field of (node as StructuredArrayNode).fields) {
-          this.walkNode(field, visitor, depth + 1);
-        }
-        for (const row of (node as StructuredArrayNode).dataRows) {
-          this.walkNode(row, visitor, depth + 1);
-        }
-        break;
-      case 'field':
-        visitor.visitField?.(node as FieldNode);
-        break;
-      case 'data-row':
-        visitor.visitDataRow?.(node as DataRowNode);
-        for (const value of (node as DataRowNode).values) {
-          this.walkNode(value, visitor, depth + 1);
-        }
-        break;
-      case 'value':
-        visitor.visitValue?.(node as ValueNode);
-        break;
-      case 'empty':
-        visitor.visitEmpty?.(node as EmptyNode);
-        break;
-    }
+    this.walker.walk(ast, visitor);
   }
 
   /**

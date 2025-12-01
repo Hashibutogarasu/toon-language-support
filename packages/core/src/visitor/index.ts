@@ -16,6 +16,10 @@ import {
   ValueNode,
   EmptyNode,
 } from '../ast';
+import { NodeHandlerFactory } from './handlers/factory';
+
+// Re-export all handlers
+export * from './handlers';
 
 /**
  * Visitor interface for traversing AST nodes
@@ -64,9 +68,11 @@ export interface ASTWalkerOptions {
  */
 export class ASTWalker {
   private options: ASTWalkerOptions;
+  private factory: NodeHandlerFactory;
 
   constructor(options?: ASTWalkerOptions) {
     this.options = options ?? {};
+    this.factory = new NodeHandlerFactory();
   }
 
   /**
@@ -80,53 +86,19 @@ export class ASTWalker {
   }
 
   /**
-   * Internal method to walk a node and its children
-   * TODO: replace switch to Factory pattern
+   * Internal method to walk a node and its children using the Factory pattern
    */
   private walkNode(node: ASTNode, visitor: ASTVisitor, depth: number): void {
     // Emit node visit callback if configured
     this.options.onNodeVisit?.(node, depth);
 
-    switch (node.type) {
-      case 'document':
-        visitor.visitDocument?.(node as DocumentNode);
-        for (const child of (node as DocumentNode).children) {
-          this.walkNode(child, visitor, depth + 1);
-        }
-        break;
-      case 'key-value-pair':
-        visitor.visitKeyValuePair?.(node as KeyValuePairNode);
-        break;
-      case 'simple-array':
-        visitor.visitSimpleArray?.(node as SimpleArrayNode);
-        for (const value of (node as SimpleArrayNode).values) {
-          this.walkNode(value, visitor, depth + 1);
-        }
-        break;
-      case 'structured-array':
-        visitor.visitStructuredArray?.(node as StructuredArrayNode);
-        for (const field of (node as StructuredArrayNode).fields) {
-          this.walkNode(field, visitor, depth + 1);
-        }
-        for (const row of (node as StructuredArrayNode).dataRows) {
-          this.walkNode(row, visitor, depth + 1);
-        }
-        break;
-      case 'field':
-        visitor.visitField?.(node as FieldNode);
-        break;
-      case 'data-row':
-        visitor.visitDataRow?.(node as DataRowNode);
-        for (const value of (node as DataRowNode).values) {
-          this.walkNode(value, visitor, depth + 1);
-        }
-        break;
-      case 'value':
-        visitor.visitValue?.(node as ValueNode);
-        break;
-      case 'empty':
-        visitor.visitEmpty?.(node as EmptyNode);
-        break;
+    // Get handler and process node
+    const handler = this.factory.getHandler(node.type);
+    handler.visit(node, visitor);
+
+    // Recursively process children
+    for (const child of handler.getChildren(node)) {
+      this.walkNode(child, visitor, depth + 1);
     }
   }
 }
